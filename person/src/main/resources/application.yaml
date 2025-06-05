@@ -1,0 +1,98 @@
+#server:
+#  port: 8080
+#
+#spring:
+#  application:
+#    name: person-service
+#
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/postgres
+#    username: postgres
+#    password: 123456
+#    driver-class-name: org.postgresql.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: validate
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#
+#  liquibase:
+#    change-log: classpath:db/changelog/db.changelog-master.yaml
+#    enabled: true
+#
+#  kafka:
+#    bootstrap-servers: kafka:9092
+#    consumer:
+#      group-id: person-group
+#      auto-offset-reset: earliest
+#      enable-auto-commit: false
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#      properties:
+#        spring.json.trusted.packages: "*"
+#    producer:
+#      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+#      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#    listener:
+#      ack-mode: manual # Manual acknowledgment for batch processing
+#
+#logging:
+#  level:
+#    root: info
+#    org.springframework.kafka: DEBUG
+#    org.hibernate.SQL: DEBUG
+
+# For build container
+server:
+  port: 8080
+
+spring:
+  application:
+    name: person-service
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/postgres
+    username: postgres
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+
+
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: person-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      ack-mode: manual # Manual acknowledgment for batch processing
+
+logging:
+  level:
+    root: info
+    org.springframework.kafka: DEBUG
+    org.hibernate.SQL: DEBUG
