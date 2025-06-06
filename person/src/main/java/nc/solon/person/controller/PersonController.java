@@ -1,5 +1,6 @@
 package nc.solon.person.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nc.solon.person.dto.PersonInDTO;
@@ -18,14 +19,16 @@ public class PersonController {
     private final PersonService personService;
 
     @PostMapping
-    public ResponseEntity<PersonOutDTO> createPerson(@Valid  @RequestBody PersonInDTO personInDTO) {
-        return ResponseEntity.ok(personService.createPerson(personInDTO));
+    public ResponseEntity<Void> createPerson(@Valid  @RequestBody PersonInDTO personInDTO) throws JsonProcessingException {
+        personService.createPerson(personInDTO);
+        return ResponseEntity.accepted().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<PersonOutDTO> updatePerson(@PathVariable Long id,
-                                                     @Valid @RequestBody PersonInDTO personInDTO) {
-        return ResponseEntity.ok(personService.updatePerson(id, personInDTO));
+    public ResponseEntity<Void> updatePerson(@PathVariable Long id,
+                                                     @Valid @RequestBody PersonInDTO personInDTO) throws JsonProcessingException {
+        personService.updatePerson(id, personInDTO);
+        return ResponseEntity.accepted().build();
     }
 
     @DeleteMapping("/{id}")

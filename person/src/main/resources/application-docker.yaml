@@ -1,23 +1,19 @@
 server:
-  port: 8080
+ port: 8080
 
 spring:
   application:
     name: person-service
-    
-  profiles:
-    active: dev
 
   datasource:
-    # url: jdbc:postgresql://localhost:5432/postgres
-    url:
+    url: jdbc:postgresql://postgres:5432/postgres
     username: postgres
     password: 123456
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -25,11 +21,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: person-group
       auto-offset-reset: earliest
