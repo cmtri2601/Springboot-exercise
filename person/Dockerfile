@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM eclipse-temurin:17-jdk-alpine as builder
+FROM eclipse-temurin:17-jdk-alpine AS builder
 
 WORKDIR /app
 
@@ -24,6 +24,9 @@ VOLUME /tmp
 
 # Set the working directory
 WORKDIR /app
+
+#Set profile to build for k8s, can overide by docker-compose
+ENV SPRING_PROFILES_ACTIVE=k8s
 
 # Copy the jar from the builder stage
 COPY --from=builder /app/target/person-*.jar app.jar
