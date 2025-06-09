@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset tri:sql-1
+--changeset tri:seed-person-data
 INSERT INTO persons (first_name, last_name, date_of_birth, tax_id, tax_debt) VALUES
     ('Michael', 'Smith', '1980-05-15', 'TAX000001', 0.00),
     ('Michelle', 'Johnson', '1975-10-20', 'TAX000002', 0.00),
@@ -81,11 +81,4 @@ INSERT INTO persons (first_name, last_name, date_of_birth, tax_id, tax_debt) VAL
     ('Maverick', 'Simmons', '1986-09-29', 'TAX000077', 0.00),
     ('Molly', 'Foster', '1978-12-15', 'TAX000078', 0.00),
     ('Micah', 'Gonzales', '1989-05-23', 'TAX000079', 0.00),
-    ('Maya', 'Bryant', '1982-07-18', 'TAX000080', 0.00),
-    ('Maximus', 'Alexander', '1976-01-06', 'TAX000081', 0.00),
-    ('Melanie', 'Russell', '1985-10-13', 'TAX000082', 0.00),
-    ('Miles', 'Griffin', '1990-03-27', 'TAX000083', 0.00),
-    ('Maya', 'Diaz', '1983-08-16', 'TAX000084', 0.00),
-    ('Malik', 'Hayes', '1979-11-02', 'TAX000085', 0.00),
-    ('Maddox', 'Myers', '1987-05-09', 'TAX000086', 0.00),
-    ('Molly', 'Ford', '1992-02-24', 'TAX000087', 0.00);
+    ('Maya', 'Bryant', '1982-07-18', 'TAX000080', 0.00);

@@ -1,13 +1,15 @@
-package nc.solon.person.kafka;
+package nc.solon.person.kafka.person.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nc.solon.person.constant.KafkaTopics;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.entity.Person;
-import nc.solon.person.event.PersonEvent;
+import nc.solon.person.PersonEvent;
 import nc.solon.person.repository.PersonRepository;
+import nc.solon.person.utils.TaxIdGenerator;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +18,12 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PersonEventConsumer {
-
+public class PersonEventsConsumer {
     private final PersonRepository repository;
     private final ObjectMapper objectMapper;
+    private final TaxIdGenerator taxIdGenerator;
 
-    @KafkaListener(topics = "person-events", groupId = "person-group")
+    @KafkaListener(topics = KafkaTopics.PERSON_EVENTS_TOPIC, groupId = "person-group")
     public void consume(String message) {
         try {
             PersonEvent event = objectMapper.readValue(message, PersonEvent.class);
@@ -43,6 +45,7 @@ public class PersonEventConsumer {
 
     private void handleCreate(PersonEvent event) throws Exception {
         Person person = mapToPerson(event.getPayload());
+        person.setTaxId(taxIdGenerator.generateTaxId());
         person.setTaxDebt(BigDecimal.ZERO); // ensure new person starts with 0 tax debt
         repository.save(person);
         log.info("Created person with taxId: {}", person.getTaxId());
@@ -54,6 +57,7 @@ public class PersonEventConsumer {
                 .orElseThrow(() -> new EntityNotFoundException("Person not found with id: " + id));
         Person updated = mapToPerson(event.getPayload());
         updated.setId(id); // ensure we're updating the correct record
+        updated.setTaxId(existing.getTaxId());
         repository.save(updated);
         log.info("Updated person with id: {}", id);
     }
@@ -68,7 +72,6 @@ public class PersonEventConsumer {
         return Person.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
-                .taxId(dto.getTaxId())
                 .dateOfBirth(dto.getDateOfBirth())
                 .taxDebt(dto.getTaxDebt())
                 .build();

@@ -25,9 +25,6 @@ public class PersonInDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate dateOfBirth;
 
-    @NotBlank(message = "Tax ID is mandatory")
-    private String taxId;
-
     @NotNull
     @DecimalMin(value = "0.0", inclusive = true, message = "Tax debt cannot be negative")
     private BigDecimal taxDebt;

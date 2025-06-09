@@ -10,7 +10,7 @@ import java.time.Period;
 @Component
 public class MapToDTO {
 
-    public PersonOutDTO person(Person person) {
+    public static PersonOutDTO person(Person person) {
         return PersonOutDTO.builder()
                 .id(person.getId())
                 .firstName(person.getFirstName())

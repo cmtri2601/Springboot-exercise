@@ -1,4 +1,4 @@
-package nc.solon.person.event;
+package nc.solon.person;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
