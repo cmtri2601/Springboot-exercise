@@ -23,9 +23,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
-
-
-
+    
   kafka:
     bootstrap-servers: kafka:9092
     consumer:
@@ -47,6 +45,3 @@ logging:
     root: info
     org.springframework.kafka: DEBUG
     org.hibernate.SQL: DEBUG
-kafka:
-  topic:
-    person-events: person-events-topic

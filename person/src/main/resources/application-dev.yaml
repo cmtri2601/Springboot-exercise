@@ -45,6 +45,3 @@ logging:
     root: info
     org.springframework.kafka: DEBUG
     org.hibernate.SQL: DEBUG
-kafka:
-  topic:
-    person-events: person-events-topic
