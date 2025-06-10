@@ -16,7 +16,7 @@ public class PersonEventsProducer {
     public void sendEvent(PersonEvent event) {
         try {
            String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(KafkaTopics.PERSON_EVENTS_TOPIC, json);
+            kafkaTemplate.send(KafkaTopics.PERSON_EVENTS, json);
         } catch (Exception e) {
             throw new RuntimeException("Failed to serialize event" + e.getMessage(), e);
         }

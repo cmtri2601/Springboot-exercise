@@ -40,7 +40,7 @@ public class KafkaConsumerConfig {
 
         // Retry indefinitely with 1-second delay between attempts
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(
-                new FixedBackOff(1000L, FixedBackOff.UNLIMITED_ATTEMPTS));
+                new FixedBackOff(0L, 3L));
 
         factory.setCommonErrorHandler(errorHandler);
 

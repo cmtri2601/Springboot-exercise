@@ -23,7 +23,7 @@ public class PersonEventsConsumer {
     private final ObjectMapper objectMapper;
     private final TaxIdGenerator taxIdGenerator;
 
-    @KafkaListener(topics = KafkaTopics.PERSON_EVENTS_TOPIC, groupId = "person-group")
+    @KafkaListener(topics = KafkaTopics.PERSON_EVENTS, groupId = "person-group")
     public void consume(String message) {
         try {
             PersonEvent event = objectMapper.readValue(message, PersonEvent.class);

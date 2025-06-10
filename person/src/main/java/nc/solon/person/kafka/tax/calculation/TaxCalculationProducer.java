@@ -16,7 +16,7 @@ public class TaxCalculationProducer {
     public void sendEvent(TaxCalculationEvent event) {
         try {
             String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(KafkaTopics.TAX_CALCULATION_TOPIC, json);
+            kafkaTemplate.send(KafkaTopics.TAX_CALCULATION, json);
         } catch (Exception e) {
             throw new RuntimeException("Failed to serialize event", e);
         }
