@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import nc.solon.person.constant.KafkaTopics;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.entity.Person;
-import nc.solon.person.PersonEvent;
+import nc.solon.person.event.PersonEvent;
 import nc.solon.person.repository.PersonRepository;
 import nc.solon.person.utils.TaxIdGenerator;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -67,8 +67,7 @@ public class PersonEventsConsumer {
         log.info("Deleted person with id: {}", id);
     }
 
-    private Person mapToPerson(String payload) throws Exception {
-        PersonInDTO dto = objectMapper.readValue(payload, PersonInDTO.class);
+    private Person mapToPerson(PersonInDTO dto) throws Exception {
         return Person.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())

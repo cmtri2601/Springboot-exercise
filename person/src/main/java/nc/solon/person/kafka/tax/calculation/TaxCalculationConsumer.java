@@ -1,17 +1,13 @@
 package nc.solon.person.kafka.tax.calculation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nc.solon.person.PersonEvent;
 import nc.solon.person.constant.KafkaTopics;
-import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.entity.Person;
 import nc.solon.person.event.TaxCalculationEvent;
 import nc.solon.person.repository.PersonRepository;
-import nc.solon.person.utils.TaxIdGenerator;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +21,7 @@ public class TaxCalculationConsumer {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = KafkaTopics.TAX_CALCULATION_TOPIC, groupId = "person-group")
-    public void consume(String message) throws JsonProcessingException {
+    public void consume(String message) {
         try {
             TaxCalculationEvent event = objectMapper.readValue(message, TaxCalculationEvent.class);
             String taxId = event.getTaxId();

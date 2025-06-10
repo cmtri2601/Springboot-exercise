@@ -1,11 +1,9 @@
 package nc.solon.person.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.dto.PersonOutDTO;
-import nc.solon.person.PersonEvent;
+import nc.solon.person.event.PersonEvent;
 import nc.solon.person.kafka.person.events.PersonEventsProducer;
 import nc.solon.person.repository.PersonRepository;
 import nc.solon.person.utils.MapToDTO;
@@ -22,15 +20,14 @@ public class PersonService {
 
     private final PersonEventsProducer eventProducer;
     private final PersonRepository personRepository;
-    private final ObjectMapper objectMapper;
 
-    public void createPerson(PersonInDTO dto) throws JsonProcessingException {
-        PersonEvent event = new PersonEvent(PersonEvent.EventType.CREATE, null, objectMapper.writeValueAsString(dto));
+    public void createPerson(PersonInDTO dto) {
+        PersonEvent event = new PersonEvent(PersonEvent.EventType.CREATE, null, dto);
         eventProducer.sendEvent(event);
     }
 
-    public void updatePerson(Long id, PersonInDTO dto) throws JsonProcessingException {
-        PersonEvent event = new PersonEvent(PersonEvent.EventType.UPDATE, id, objectMapper.writeValueAsString(dto));
+    public void updatePerson(Long id, PersonInDTO dto)  {
+        PersonEvent event = new PersonEvent(PersonEvent.EventType.UPDATE, id, dto);
         eventProducer.sendEvent(event);
     }
 
@@ -40,16 +37,16 @@ public class PersonService {
     }
 
     public Optional<PersonOutDTO> getPersonById(Long id) {
-        return personRepository.findById(id).map(person -> MapToDTO.person(person));
+        return personRepository.findById(id).map(MapToDTO::person);
     }
 
     public Optional<PersonOutDTO> getPersonByTaxId(String taxId) {
-        return personRepository.findByTaxId(taxId).map(person -> MapToDTO.person(person));
+        return personRepository.findByTaxId(taxId).map(MapToDTO::person);
     }
 
     public List<PersonOutDTO> getAllPersons() {
         return personRepository.findAll().stream()
-                .map(person -> MapToDTO.person(person))
+                .map(MapToDTO::person)
                 .collect(Collectors.toList());
     }
 
