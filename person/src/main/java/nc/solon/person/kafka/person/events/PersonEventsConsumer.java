@@ -11,6 +11,7 @@ import nc.solon.person.event.PersonEvent;
 import nc.solon.person.repository.PersonRepository;
 import nc.solon.person.utils.TaxIdGenerator;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ public class PersonEventsConsumer {
     private final TaxIdGenerator taxIdGenerator;
 
     @KafkaListener(topics = KafkaTopics.PERSON_EVENTS, groupId = "person-group")
-    public void consume(String message) {
+    public void consume(String message, Acknowledgment ack) {
         try {
             PersonEvent event = objectMapper.readValue(message, PersonEvent.class);
             if (event == null || event.getEventType() == null) {
@@ -38,6 +39,7 @@ public class PersonEventsConsumer {
                 case DELETE -> handleDelete(event.getPersonId());
                 default -> log.warn("Unknown event type: {}", event.getEventType());
             }
+            ack.acknowledge();
         } catch (Exception e) {
             log.error("Error processing Kafka message: {}", message, e);
         }
