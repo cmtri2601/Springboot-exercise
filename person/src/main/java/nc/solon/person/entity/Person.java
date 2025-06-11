@@ -39,5 +39,5 @@ public class Person {
 
     @Column(name = "tax_debt", nullable = false)
     @NotNull
-    private BigDecimal taxDebt = BigDecimal.ZERO;
+    private BigDecimal taxDebt;
 }
