@@ -45,7 +45,7 @@ public class PersonEventsConsumer {
         }
     }
 
-    private void handleCreate(PersonEvent event) throws Exception {
+    private void handleCreate(PersonEvent event) {
         Person person = mapToPerson(event.getPayload());
         person.setTaxId(taxIdGenerator.generateTaxId());
         person.setTaxDebt(BigDecimal.ZERO); // ensure new person starts with 0 tax debt
@@ -53,7 +53,7 @@ public class PersonEventsConsumer {
         log.info("Created person with taxId: {}", person.getTaxId());
     }
 
-    private void handleUpdate(PersonEvent event) throws Exception {
+    private void handleUpdate(PersonEvent event) {
         Long id = event.getPersonId();
         Person existing = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Person not found with id: " + id));
@@ -69,7 +69,7 @@ public class PersonEventsConsumer {
         log.info("Deleted person with id: {}", id);
     }
 
-    private Person mapToPerson(PersonInDTO dto) throws Exception {
+    private Person mapToPerson(PersonInDTO dto) {
         return Person.builder()
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())

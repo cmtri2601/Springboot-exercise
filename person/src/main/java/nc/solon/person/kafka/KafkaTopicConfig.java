@@ -25,12 +25,17 @@ public class KafkaTopicConfig {
 
     @Bean
     public NewTopic taxCalculationDLTopic() {
-    return TopicBuilder.name(KafkaTopics.TAX_CALCULATION_DLT).build();
+        return TopicBuilder.name(KafkaTopics.TAX_CALCULATION_DLT).build();
     }
 
     @Bean
     public NewTopic taxCalculationBatchTopic() {
         return TopicBuilder.name(KafkaTopics.TAX_CALCULATION_BATCH).build();
+    }
+
+    @Bean
+    public NewTopic taxCalculationManualConsumeTopic() {
+        return TopicBuilder.name(KafkaTopics.TAX_CALCULATION_MANUAL_CONSUME).partitions(3).build();
     }
 
 }

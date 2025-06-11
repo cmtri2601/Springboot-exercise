@@ -38,10 +38,10 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     listener:
-      ack-mode: manual # Manual acknowledgment for batch processing
+      ack-mode: manual
 
 logging:
   level:
-    root: info
+    root: INFO
     org.springframework.kafka: DEBUG
     org.hibernate.SQL: DEBUG

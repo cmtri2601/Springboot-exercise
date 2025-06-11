@@ -32,4 +32,14 @@ public class TaxCalculationProducer {
             throw new RuntimeException("Failed to serialize event", e);
         }
     }
+
+    public void sendManualEvent(TaxCalculationEvent event) {
+        try {
+            String key = event.getTaxId();
+            String json = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(KafkaTopics.TAX_CALCULATION_MANUAL_CONSUME, key, json);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to serialize event", e);
+        }
+    }
 }

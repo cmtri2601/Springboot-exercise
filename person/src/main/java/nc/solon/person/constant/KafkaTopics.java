@@ -11,4 +11,5 @@ public class KafkaTopics {
     public static final String TAX_CALCULATION_BATCH = "tax.calculation-batch";
     public static final String TAX_CALCULATION_BATCH_RETRY = "tax.calculation-batch-retry";
     public static final String TAX_CALCULATION_BATCH_DLT = "tax.calculation-batch-dlt";
+    public static final String TAX_CALCULATION_MANUAL_CONSUME = "tax.calculation-manual-consume";
 }

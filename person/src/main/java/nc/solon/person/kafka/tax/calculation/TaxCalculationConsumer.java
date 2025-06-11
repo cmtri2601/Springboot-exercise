@@ -7,12 +7,16 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nc.solon.person.constant.KafkaTopics;
+import nc.solon.person.dto.ManualConsumeTaxOutDTO;
 import nc.solon.person.entity.Person;
 import nc.solon.person.event.TaxCalculationEvent;
 import nc.solon.person.repository.PersonRepository;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
@@ -20,13 +24,16 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
+import java.time.Duration;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TaxCalculationConsumer {
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
+
     private final PersonRepository repository;
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -86,6 +93,83 @@ public class TaxCalculationConsumer {
         } catch (Exception e) {
             log.error("Error processing batch: {}", batch.value(), e);
         }
+    }
+
+    public ManualConsumeTaxOutDTO consumeManual(int count) {
+        List<TaxCalculationEvent> batch = new ArrayList<>();
+        long totalLag = 0;
+        int numberMessageLeft;
+        boolean hasMessageLeft;
+
+        Properties props = getProperties(count);
+
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
+            consumer.subscribe(Collections.singleton(KafkaTopics.TAX_CALCULATION_MANUAL_CONSUME));
+
+            // Wait for assignment
+            // 1. Trigger partition assignment
+            int retries = 0, maxRetries = 200;
+            while (consumer.assignment().isEmpty() && retries++ < maxRetries) {
+                consumer.poll(Duration.ofMillis(100));
+            }
+            if (consumer.assignment().isEmpty()) {
+                throw new IllegalStateException("Failed to get partition assignments.");
+            }
+
+            Set<TopicPartition> partitions = consumer.assignment();
+            Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);
+            Map<TopicPartition, OffsetAndMetadata> committedOffsets = consumer.committed(partitions);
+
+            for (TopicPartition partition : partitions) {
+                long logEnd = endOffsets.getOrDefault(partition, 0L);
+                long committed = committedOffsets.getOrDefault(partition, new OffsetAndMetadata(0L)).offset();
+                long lag = logEnd - committed;
+                totalLag += lag;
+            }
+
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+
+            int totalRecords = records.count();
+            numberMessageLeft = (int) (totalLag - totalRecords);
+            hasMessageLeft = numberMessageLeft > 0;
+
+            for (ConsumerRecord<String, String> record : records) {
+                try {
+                    TaxCalculationEvent event = objectMapper.readValue(record.value(), TaxCalculationEvent.class);
+                    batch.add(event);
+                    updateTaxCalculationEvent(event);
+                } catch (Exception e) {
+                    handleSendRetryEvent(record.value(), e);
+                }
+            }
+            consumer.commitSync();
+        }
+
+        return new ManualConsumeTaxOutDTO(batch, numberMessageLeft, hasMessageLeft);
+    }
+
+    private Properties getProperties(int count) {
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "manual-tax-calc-consumer");
+
+        // Deserialize as Strings
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+
+        // Manual offset management
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+
+        // Fetch at most {count} records per poll
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, count);
+
+        // Required: start from beginning if no committed offset exists
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+        // For debug
+        props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 60000 * 5);
+
+        return props;
     }
 
     private void handleTaxCalculationEvent(String message) throws JsonProcessingException {
