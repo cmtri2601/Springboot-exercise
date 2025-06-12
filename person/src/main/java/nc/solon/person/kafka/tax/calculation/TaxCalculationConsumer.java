@@ -114,9 +114,9 @@ public class TaxCalculationConsumer {
             // Wait for assignment
             // 1. Trigger partition assignment
             int retries = 0, maxRetries = 100;
-//            ConsumerRecords<String, String> records = new ConsumerRecords<>(Collections.emptyMap());
+            ConsumerRecords<String, String> records = new ConsumerRecords<>(Collections.emptyMap());
             while (consumer.assignment().isEmpty() && retries++ < maxRetries) {
-                consumer.poll(Duration.ofMillis(100));
+                records = consumer.poll(Duration.ofMillis(100));
             }
             if (consumer.assignment().isEmpty()) {
                 throw new IllegalStateException("Failed to get partition assignments.");
@@ -128,12 +128,16 @@ public class TaxCalculationConsumer {
 
             for (TopicPartition partition : partitions) {
                 long logEnd = endOffsets.getOrDefault(partition, 0L);
-                long committed = committedOffsets.getOrDefault(partition, new OffsetAndMetadata(0L)).offset();
+                OffsetAndMetadata committedMeta = committedOffsets.get(partition);
+                long committed = committedMeta != null ? committedMeta.offset() : 0L;
                 long lag = logEnd - committed;
                 totalLag += lag;
             }
 
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(500));
+            // Avoid double poll
+            if (records.count() == 0) {
+                records = consumer.poll(Duration.ofMillis(500));
+            }
 
             int totalRecords = records.count();
             numberMessageLeft = (int) (totalLag - totalRecords);
