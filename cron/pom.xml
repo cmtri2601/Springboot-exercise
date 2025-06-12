@@ -92,12 +92,12 @@
 						<image>eclipse-temurin:17-jre</image>
 					</from>
 					<to>
-						<image>minhtricao/person-service</image>
+						<image>minhtricao/cron-service</image>
 					</to>
 					<container>
-						<mainClass>nc.solon.person.PersonApplication</mainClass>
+						<mainClass>nc.solon.cron.CronApplication</mainClass>
 						<ports>
-							<port>8080</port>
+							<port>8081</port>
 						</ports>
 						<environment>
 							<SPRING_PROFILES_ACTIVE>k8s</SPRING_PROFILES_ACTIVE>
