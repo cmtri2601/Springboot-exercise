@@ -1,6 +1,6 @@
-package nc.solon.cron;
+package nc.solon.cron.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,16 +12,18 @@ public class ConsumeTaxCalculation {
 
     private final RestTemplate restTemplate;
 
+    @Value("${person-service.consume-url}")
+    String consumeUrl;
+
     public ConsumeTaxCalculation(RestTemplateBuilder builder) {
         this.restTemplate = builder.build();
     }
 
-    //    @Scheduled(fixedRate = 5 * 60 * 1000) // every 5 minutes
-    @Scheduled(fixedRate = 5 * 1000) // every 5 s
+    @Scheduled(fixedRateString = "${fixed-rate.consume-tax-calculation}")
     public void callRestEndpoint() {
-        String url = "http://localhost:8080/api/v1/tax-calculation/consume-manual";
+
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            ResponseEntity<String> response = restTemplate.getForEntity(consumeUrl, String.class);
             System.out.println("Called endpoint. Status: " + response.getStatusCode());
             System.out.println("Response: " + response.getBody());
         } catch (Exception e) {
