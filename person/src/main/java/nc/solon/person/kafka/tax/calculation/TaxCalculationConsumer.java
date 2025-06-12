@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nc.solon.person.audit.Auditable;
 import nc.solon.person.constant.KafkaTopics;
 import nc.solon.person.dto.ManualConsumeTaxOutDTO;
 import nc.solon.person.entity.Person;
@@ -41,6 +42,7 @@ public class TaxCalculationConsumer {
     private static final String RETRY_HEADER = "retry-count";
     private static final int MAX_RETRIES = 3;
 
+    @Auditable(action = "Tax Consumer")
     @KafkaListener(topics = KafkaTopics.TAX_CALCULATION, groupId = "person-group")
     public void consume(String message, Acknowledgment ack) {
         try {
@@ -51,6 +53,7 @@ public class TaxCalculationConsumer {
         ack.acknowledge();
     }
 
+    @Auditable(action = "Tax Retry Consumer")
     @KafkaListener(topics = KafkaTopics.TAX_CALCULATION_RETRY, groupId = "person-group")
     public void retryConsume(ConsumerRecord<String, String> record, Acknowledgment ack) {
         String message = record.value();
@@ -83,6 +86,7 @@ public class TaxCalculationConsumer {
         ack.acknowledge();
     }
 
+    @Auditable(action = "Tax Consumer Batch")
     @KafkaListener(topics = KafkaTopics.TAX_CALCULATION_BATCH, groupId = "person-group")
     public void consumeBatch(ConsumerRecord<String, String> batch, Acknowledgment ack) {
         log.info("Received batch: {}", batch);
@@ -95,6 +99,7 @@ public class TaxCalculationConsumer {
         }
     }
 
+    @Auditable(action = "Tax Consumer Manual")
     public ManualConsumeTaxOutDTO consumeManual(int count) {
         List<TaxCalculationEvent> batch = new ArrayList<>();
         long totalLag = 0;
@@ -108,7 +113,8 @@ public class TaxCalculationConsumer {
 
             // Wait for assignment
             // 1. Trigger partition assignment
-            int retries = 0, maxRetries = 200;
+            int retries = 0, maxRetries = 100;
+//            ConsumerRecords<String, String> records = new ConsumerRecords<>(Collections.emptyMap());
             while (consumer.assignment().isEmpty() && retries++ < maxRetries) {
                 consumer.poll(Duration.ofMillis(100));
             }
@@ -127,7 +133,7 @@ public class TaxCalculationConsumer {
                 totalLag += lag;
             }
 
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(500));
 
             int totalRecords = records.count();
             numberMessageLeft = (int) (totalLag - totalRecords);

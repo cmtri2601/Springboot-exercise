@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nc.solon.person.audit.Auditable;
 import nc.solon.person.constant.KafkaTopics;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.entity.Person;
@@ -24,6 +25,7 @@ public class PersonEventsConsumer {
     private final ObjectMapper objectMapper;
     private final TaxIdGenerator taxIdGenerator;
 
+    @Auditable(action = "Person Consumer")
     @KafkaListener(topics = KafkaTopics.PERSON_EVENTS, groupId = "person-group")
     public void consume(String message, Acknowledgment ack) {
         try {

@@ -1,3 +1,4 @@
+name: kafka-dev
 services:
   kafka:
     image: bitnami/kafka:3.9
