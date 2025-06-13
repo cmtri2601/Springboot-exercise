@@ -29,13 +29,13 @@ public class TaxCalculationController {
         return ResponseEntity.accepted().build();
     }
 
-    @PostMapping("produce-manual")
+    @PostMapping("manual")
     public ResponseEntity<Void> produceManual(@RequestBody List<@Valid TaxInDTO> batch) {
         taxService.produceManual(batch);
         return ResponseEntity.accepted().build();
     }
 
-    @GetMapping("consume-manual")
+    @GetMapping("manual")
     public ResponseEntity<ManualConsumeTaxOutDTO> consumeManual(@RequestParam(value = "count", required = false, defaultValue = "10") String count) {
          return ResponseEntity.ok(taxService.consumeManual(Integer.parseInt(count)));
     }
