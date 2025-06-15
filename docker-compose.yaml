@@ -27,8 +27,11 @@ services:
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_KRAFT_CLUSTER_ID: abcdefghijklmnopqrstuv
       ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_LOG4J_LOGGERS: kafka.controller=ERROR,kafka.producer.async.DefaultEventHandler=ERROR,state.change.logger=ERROR
     ports:
       - "9092:9092"
+    volumes:
+      - ./log4j.properties:/opt/bitnami/kafka/config/log4j.properties
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -40,6 +43,8 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: solon
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      LOGGING_LEVEL_ROOT: ERROR
+      LOGGING_LEVEL_COM_PROVECTUS: ERROR
 
   person-service:
     build:
@@ -52,7 +57,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
 
   cron-service:
     build:
@@ -62,7 +67,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: prod
 
 volumes:
   postgres_data:

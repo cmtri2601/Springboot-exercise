@@ -5,8 +5,12 @@ spring:
   application:
     name: cron-service
 
+logging:
+  level:
+    root: INFO
+
 fixed-rate:
   consume-tax-calculation: 5000
 
 person-service:
-  consume-url: http://localhost:8080/api/v1/tax-calculation/consume-manual
+  consume-url: http://localhost:8080/api/v1/tax-calculation/manual

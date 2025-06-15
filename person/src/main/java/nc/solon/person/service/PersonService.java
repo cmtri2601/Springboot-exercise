@@ -53,7 +53,7 @@ public class PersonService {
     public List<PersonOutDTO> findPersonsByNamePrefixAndMinAge(String prefix, int minAge) {
         LocalDate maxBirthDate = LocalDate.now().minusYears(minAge);
         return personRepository.findByNamePrefixAndOlderThan(prefix, maxBirthDate).stream()
-                .map(person -> MapToDTO.person(person))
+                .map(MapToDTO::person)
                 .collect(Collectors.toList());
     }
 }

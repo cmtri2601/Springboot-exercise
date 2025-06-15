@@ -17,16 +17,28 @@ import java.util.Map;
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
+
+    @Value("${spring.kafka.consumer.key-deserializer}")
+    private String keyDeserializer;
+
+    @Value("${spring.kafka.consumer.value-deserializer}")
+    private String valueDeserializer;
+
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
+
+    @Value("${kafka.topics.person.fixed-backoff.interval}")
+    private int interval;
+
+    @Value("${kafka.topics.person.fixed-backoff.max-attemptes}")
+    private int maxAttempts;
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "person-group");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -34,14 +46,9 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String>  factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
         factory.setConsumerFactory(consumerFactory());
-
-        // Manually acknowledgement
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-
-        // Retry indefinitely with 1-second delay between attempts
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(
-                new FixedBackOff(0L, 3L));
-
+                new FixedBackOff(interval, maxAttempts));
         factory.setCommonErrorHandler(errorHandler);
 
         return factory;

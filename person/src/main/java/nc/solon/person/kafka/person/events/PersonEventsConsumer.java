@@ -5,7 +5,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nc.solon.person.audit.Auditable;
-import nc.solon.person.constant.KafkaTopics;
+import nc.solon.person.constant.Action;
+import nc.solon.person.constant.ErrorMessage;
+import nc.solon.person.constant.LogMessage;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.entity.Person;
 import nc.solon.person.event.PersonEvent;
@@ -25,13 +27,13 @@ public class PersonEventsConsumer {
     private final ObjectMapper objectMapper;
     private final TaxIdGenerator taxIdGenerator;
 
-    @Auditable(action = "Person Consumer")
-    @KafkaListener(topics = KafkaTopics.PERSON_EVENTS, groupId = "person-group")
+    @Auditable(action = Action.PERSON_CONSUME)
+    @KafkaListener(topics = "${kafka.topics.person.events.name}", groupId = "${kafka.groups.person.events.name}")
     public void consume(String message, Acknowledgment ack) {
         try {
             PersonEvent event = objectMapper.readValue(message, PersonEvent.class);
             if (event == null || event.getEventType() == null) {
-                log.warn("Received null or malformed event: {}", message);
+                log.warn(ErrorMessage.MALFORMED_EVENT ,message);
                 return;
             }
 
@@ -39,36 +41,36 @@ public class PersonEventsConsumer {
                 case CREATE -> handleCreate(event);
                 case UPDATE -> handleUpdate(event);
                 case DELETE -> handleDelete(event.getPersonId());
-                default -> log.warn("Unknown event type: {}", event.getEventType());
+                default -> log.warn(ErrorMessage.NOT_EXIST_EVENT_TYPE, event.getEventType());
             }
             ack.acknowledge();
         } catch (Exception e) {
-            log.error("Error processing Kafka message: {}", message, e);
+            log.error(ErrorMessage.FAIL_PROCESS_KAFKA, message, e);
         }
     }
 
     private void handleCreate(PersonEvent event) {
         Person person = mapToPerson(event.getPayload());
         person.setTaxId(taxIdGenerator.generateTaxId());
-        person.setTaxDebt(BigDecimal.ZERO); // ensure new person starts with 0 tax debt
+        person.setTaxDebt(BigDecimal.ZERO);
         repository.save(person);
-        log.info("Created person with taxId: {}", person.getTaxId());
+        log.info(LogMessage.PERSON_CREATED, person.getTaxId());
     }
 
     private void handleUpdate(PersonEvent event) {
         Long id = event.getPersonId();
         Person existing = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Person not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PERSON_NOT_FOUND + id));
         Person updated = mapToPerson(event.getPayload());
-        updated.setId(id); // ensure we're updating the correct record
+        updated.setId(id);
         updated.setTaxId(existing.getTaxId());
         repository.save(updated);
-        log.info("Updated person with id: {}", id);
+        log.info(LogMessage.PERSON_UPDATED, id);
     }
 
     private void handleDelete(Long id) {
         repository.deleteById(id);
-        log.info("Deleted person with id: {}", id);
+        log.info(LogMessage.PERSON_DELETED, id);
     }
 
     private Person mapToPerson(PersonInDTO dto) {

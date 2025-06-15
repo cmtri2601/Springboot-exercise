@@ -26,7 +26,7 @@ VOLUME /tmp
 WORKDIR /app
 
 #Set profile to build for k8s, can overide by docker-compose
-ENV SPRING_PROFILES_ACTIVE=k8s
+ENV SPRING_PROFILES_ACTIVE=prod
 
 # Copy the jar from the builder stage
 COPY --from=builder /app/target/person-*.jar app.jar
