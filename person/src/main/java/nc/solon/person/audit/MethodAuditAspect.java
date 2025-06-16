@@ -13,23 +13,22 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MethodAuditAspect {
 
-    @Around("@annotation(auditable)")
-    public Object auditMethod(ProceedingJoinPoint joinPoint, Auditable auditable) throws Throwable {
-        String action = auditable.action();
-        String method = joinPoint.getSignature().toShortString();
-        Object[] args = joinPoint.getArgs();
-        String argsJson = Serialize.audit(args);
-        log.info(LogMessage.AUDIT_METHOD_START, action, method, argsJson);
+  @Around("@annotation(auditable)")
+  public Object auditMethod(ProceedingJoinPoint joinPoint, Auditable auditable) throws Throwable {
+    String action = auditable.action();
+    String method = joinPoint.getSignature().toShortString();
+    Object[] args = joinPoint.getArgs();
+    String argsJson = Serialize.audit(args);
+    log.info(LogMessage.AUDIT_METHOD_START, action, method, argsJson);
 
-        try {
-            Object result = joinPoint.proceed();
-            String resultJson = Serialize.audit(result);
-            log.info(LogMessage.AUDIT_METHOD_END, action, method, resultJson);
-            return result;
-        } catch (Throwable ex) {
-            log.error(LogMessage.AUDIT_METHOD_ERROR, action, method, ex.getMessage());
-            throw ex;
-        }
+    try {
+      Object result = joinPoint.proceed();
+      String resultJson = Serialize.audit(result);
+      log.info(LogMessage.AUDIT_METHOD_END, action, method, resultJson);
+      return result;
+    } catch (Throwable ex) {
+      log.error(LogMessage.AUDIT_METHOD_ERROR, action, method, ex.getMessage());
+      throw ex;
     }
+  }
 }
-

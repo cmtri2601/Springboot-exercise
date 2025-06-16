@@ -1,8 +1,7 @@
 package nc.solon.person.dto;
 
-import lombok.*;
-
 import java.math.BigDecimal;
+import lombok.*;
 
 @Getter
 @Setter
@@ -11,16 +10,16 @@ import java.math.BigDecimal;
 @Builder
 public class PersonOutDTO {
 
-    private Long id;
+  private Long id;
 
-    private String firstName;
+  private String firstName;
 
-    private String lastName;
+  private String lastName;
 
-    // Exposed in API instead of dateOfBirth
-    private Integer age;
+  // Exposed in API instead of dateOfBirth
+  private Integer age;
 
-    private String taxId;
+  private String taxId;
 
-    private BigDecimal taxDebt;
+  private BigDecimal taxDebt;
 }

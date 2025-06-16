@@ -8,14 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaxIdGenerator {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-    @Transactional
-    public String generateTaxId() {
-        Long nextVal = ((Number) entityManager
-                .createNativeQuery("SELECT nextval('tax_id_seq')")
-                .getSingleResult()).longValue();
-        return String.format("TAX%06d", nextVal);
-    }
+  @Transactional
+  public String generateTaxId() {
+    Long nextVal =
+        ((Number) entityManager.createNativeQuery("SELECT nextval('tax_id_seq')").getSingleResult())
+            .longValue();
+    return String.format("TAX%06d", nextVal);
+  }
 }

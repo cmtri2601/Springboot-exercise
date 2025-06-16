@@ -2,6 +2,7 @@ package nc.solon.person.kafka.person.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nc.solon.person.audit.Auditable;
@@ -17,68 +18,70 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PersonEventsConsumer {
-    private final PersonRepository repository;
-    private final ObjectMapper objectMapper;
-    private final TaxIdGenerator taxIdGenerator;
+  private final PersonRepository repository;
+  private final ObjectMapper objectMapper;
+  private final TaxIdGenerator taxIdGenerator;
 
-    @Auditable(action = Action.PERSON_CONSUME)
-    @KafkaListener(topics = "${kafka.topics.person.events.name}", groupId = "${kafka.groups.person.events.name}")
-    public void consume(String message, Acknowledgment ack) {
-        try {
-            PersonEvent event = objectMapper.readValue(message, PersonEvent.class);
-            if (event == null || event.getEventType() == null) {
-                log.warn(ErrorMessage.MALFORMED_EVENT, message);
-                return;
-            }
+  @Auditable(action = Action.PERSON_CONSUME)
+  @KafkaListener(
+      topics = "${kafka.topics.person.events.name}",
+      groupId = "${kafka.groups.person.events.name}")
+  public void consume(String message, Acknowledgment ack) {
+    try {
+      PersonEvent event = objectMapper.readValue(message, PersonEvent.class);
+      if (event == null || event.getEventType() == null) {
+        log.warn(ErrorMessage.MALFORMED_EVENT, message);
+        return;
+      }
 
-            switch (event.getEventType()) {
-                case CREATE -> handleCreate(event);
-                case UPDATE -> handleUpdate(event);
-                case DELETE -> handleDelete(event.getPersonId());
-                default -> log.warn(ErrorMessage.NOT_EXIST_EVENT_TYPE, event.getEventType());
-            }
-            ack.acknowledge();
-        } catch (Exception e) {
-            log.error(ErrorMessage.FAIL_PROCESS_KAFKA, message, e);
-        }
+      switch (event.getEventType()) {
+        case CREATE -> handleCreate(event);
+        case UPDATE -> handleUpdate(event);
+        case DELETE -> handleDelete(event.getPersonId());
+        default -> log.warn(ErrorMessage.NOT_EXIST_EVENT_TYPE, event.getEventType());
+      }
+      ack.acknowledge();
+    } catch (Exception e) {
+      log.error(ErrorMessage.FAIL_PROCESS_KAFKA, message, e);
     }
+  }
 
-    private void handleCreate(PersonEvent event) {
-        Person person = mapToPerson(event.getPayload());
-        person.setTaxId(taxIdGenerator.generateTaxId());
-        person.setTaxDebt(BigDecimal.ZERO);
-        repository.save(person);
-        log.info(LogMessage.PERSON_CREATED, person.getTaxId());
-    }
+  private void handleCreate(PersonEvent event) {
+    Person person = mapToPerson(event.getPayload());
+    person.setTaxId(taxIdGenerator.generateTaxId());
+    person.setTaxDebt(BigDecimal.ZERO);
+    repository.save(person);
+    log.info(LogMessage.PERSON_CREATED, person.getTaxId());
+  }
 
-    private void handleUpdate(PersonEvent event) {
-        Long id = event.getPersonId();
-        Person existing = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PERSON_NOT_FOUND + id));
-        Person updated = mapToPerson(event.getPayload());
-        updated.setId(id);
-        updated.setTaxId(existing.getTaxId());
-        repository.save(updated);
-        log.info(LogMessage.PERSON_UPDATED, id);
-    }
+  private void handleUpdate(PersonEvent event) {
+    Long id = event.getPersonId();
+    Person existing =
+        repository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(ErrorMessage.PERSON_NOT_FOUND + id));
+    Person updated = mapToPerson(event.getPayload());
+    updated.setId(id);
+    updated.setTaxId(existing.getTaxId());
+    repository.save(updated);
+    log.info(LogMessage.PERSON_UPDATED, id);
+  }
 
-    private void handleDelete(Long id) {
-        repository.deleteById(id);
-        log.info(LogMessage.PERSON_DELETED, id);
-    }
+  private void handleDelete(Long id) {
+    repository.deleteById(id);
+    log.info(LogMessage.PERSON_DELETED, id);
+  }
 
-    private Person mapToPerson(PersonInDTO dto) {
-        return Person.builder()
-                .firstName(dto.getFirstName())
-                .lastName(dto.getLastName())
-                .dateOfBirth(dto.getDateOfBirth())
-                .taxDebt(dto.getTaxDebt())
-                .build();
-    }
+  private Person mapToPerson(PersonInDTO dto) {
+    return Person.builder()
+        .firstName(dto.getFirstName())
+        .lastName(dto.getLastName())
+        .dateOfBirth(dto.getDateOfBirth())
+        .taxDebt(dto.getTaxDebt())
+        .build();
+  }
 }

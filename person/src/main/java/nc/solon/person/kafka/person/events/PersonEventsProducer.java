@@ -13,18 +13,18 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PersonEventsProducer {
 
-    private final ObjectMapper objectMapper;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+  private final ObjectMapper objectMapper;
+  private final KafkaTemplate<String, String> kafkaTemplate;
 
-    @Value("${kafka.topics.person.events.name}")
-    private String personEventsTopic;
+  @Value("${kafka.topics.person.events.name}")
+  private String personEventsTopic;
 
-    public void sendEvent(PersonEvent event) {
-        try {
-            String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(personEventsTopic, json);
-        } catch (Exception e) {
-            ErrorHandler.throwRuntimeError(ErrorMessage.FAIL_SERIALIZE_EVENT, e);
-        }
+  public void sendEvent(PersonEvent event) {
+    try {
+      String json = objectMapper.writeValueAsString(event);
+      kafkaTemplate.send(personEventsTopic, json);
+    } catch (Exception e) {
+      ErrorHandler.throwRuntimeError(ErrorMessage.FAIL_SERIALIZE_EVENT, e);
     }
+  }
 }
