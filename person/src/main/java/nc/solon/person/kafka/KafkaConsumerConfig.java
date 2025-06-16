@@ -30,7 +30,7 @@ public class KafkaConsumerConfig {
   @Value("${kafka.topics.person.fixed-backoff.interval}")
   private int interval;
 
-  @Value("${kafka.topics.person.fixed-backoff.max-attemptes}")
+  @Value("${kafka.topics.person.fixed-backoff.max-attempts}")
   private int maxAttempts;
 
   @Bean

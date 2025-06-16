@@ -48,7 +48,7 @@ kafka:
         name: person.events
       fixed-backoff:
         interval: 0
-        max-attemptes: 3
+        max-attempts: 3
     tax:
       calculation:
         single:
