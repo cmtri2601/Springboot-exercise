@@ -1,5 +1,5 @@
 server:
- port: 8080
+  port: 8080
 
 spring:
   application:
@@ -23,14 +23,14 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    
+
   kafka:
     bootstrap-servers: kafka:9092
     consumer:
       properties:
         spring.json.trusted.packages: "*"
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer:  org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
