@@ -11,9 +11,8 @@ import nc.solon.person.dto.PersonInDTO;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PersonEvent {
-    public enum EventType { CREATE, UPDATE, DELETE }
-
     private EventType eventType;
     private Long personId;
     private PersonInDTO payload;
+    public enum EventType {CREATE, UPDATE, DELETE}
 }

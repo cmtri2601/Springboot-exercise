@@ -33,15 +33,15 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class TaxCalculationConsumer {
+    private final PersonRepository repository;
+    private final ObjectMapper objectMapper;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
-
     @Value("${spring.kafka.consumer.key-deserializer}")
     private String keyDeserializer;
-
     @Value("${spring.kafka.consumer.value-deserializer}")
     private String valueDeserializer;
-
     @Value("${kafka.topics.tax.calculation.retry.name}")
     private String taxRetryTopic;
     @Value("${kafka.topics.tax.calculation.dlt.name}")
@@ -60,10 +60,6 @@ public class TaxCalculationConsumer {
     private String retryHeader;
     @Value("${kafka.topics.tax.calculation.retry.max-retries}")
     private int retryMaxRetries;
-
-    private final PersonRepository repository;
-    private final ObjectMapper objectMapper;
-    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @Auditable(action = Action.TAX_CONSUME)
     @KafkaListener(topics = "${kafka.topics.tax.calculation.single.name}", groupId = "${kafka.groups.tax.calculation.single.name}")
@@ -213,7 +209,8 @@ public class TaxCalculationConsumer {
 
     private void handleTaxCalculationEventBatch(String message) throws JsonProcessingException {
         List<TaxCalculationEvent> events = objectMapper.readValue(message,
-                new TypeReference<List<TaxCalculationEvent>>() {});
+                new TypeReference<List<TaxCalculationEvent>>() {
+                });
 
         events.forEach(event -> {
             try {
@@ -241,7 +238,7 @@ public class TaxCalculationConsumer {
         repository.save(existing);
     }
 
-    private void handleSendRetryEvent(String message, Exception e)  {
+    private void handleSendRetryEvent(String message, Exception e) {
         log.error(ErrorMessage.FAIL_PROCESS_KAFKA, message, e);
         kafkaTemplate.send(taxRetryTopic, message);
         log.info(LogMessage.SENT_TO_TOPIC, taxRetryTopic);
@@ -252,7 +249,8 @@ public class TaxCalculationConsumer {
             String value = new String(record.headers().lastHeader(retryHeader).value());
             try {
                 return Integer.parseInt(value);
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
         }
         return 0;
     }

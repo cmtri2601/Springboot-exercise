@@ -1,4 +1,5 @@
 package nc.solon.person.repository;
+
 import nc.solon.person.entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

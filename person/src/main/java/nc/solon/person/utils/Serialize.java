@@ -1,7 +1,6 @@
 package nc.solon.person.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import nc.solon.person.constant.ErrorMessage;
 
 public class Serialize {

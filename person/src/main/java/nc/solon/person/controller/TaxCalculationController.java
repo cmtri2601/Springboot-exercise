@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nc.solon.person.dto.ManualConsumeTaxOutDTO;
 import nc.solon.person.dto.TaxInDTO;
-import nc.solon.person.event.TaxCalculationEvent;
 import nc.solon.person.service.TaxService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +36,6 @@ public class TaxCalculationController {
 
     @GetMapping("manual")
     public ResponseEntity<ManualConsumeTaxOutDTO> consumeManual(@RequestParam(value = "count", required = false, defaultValue = "10") String count) {
-         return ResponseEntity.ok(taxService.consumeManual(Integer.parseInt(count)));
+        return ResponseEntity.ok(taxService.consumeManual(Integer.parseInt(count)));
     }
 }

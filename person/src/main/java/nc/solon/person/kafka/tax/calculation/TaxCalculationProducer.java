@@ -1,4 +1,5 @@
 package nc.solon.person.kafka.tax.calculation;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import nc.solon.person.constant.ErrorMessage;

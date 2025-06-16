@@ -1,4 +1,5 @@
 package nc.solon.person.kafka.person.events;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import nc.solon.person.constant.ErrorMessage;
@@ -20,7 +21,7 @@ public class PersonEventsProducer {
 
     public void sendEvent(PersonEvent event) {
         try {
-           String json = objectMapper.writeValueAsString(event);
+            String json = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(personEventsTopic, json);
         } catch (Exception e) {
             ErrorHandler.throwRuntimeError(ErrorMessage.FAIL_SERIALIZE_EVENT, e);

@@ -1,4 +1,5 @@
 package nc.solon.person.audit;
+
 import lombok.extern.slf4j.Slf4j;
 import nc.solon.person.constant.LogMessage;
 import nc.solon.person.utils.Serialize;
@@ -14,7 +15,8 @@ public class ControllerAuditAspect {
 
     // Target all methods in classes annotated with @RestController or @Controller
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *) || within(@org.springframework.stereotype.Controller *)")
-    public void controllerMethods() {}
+    public void controllerMethods() {
+    }
 
     @Before("controllerMethods()")
     public void logBefore(JoinPoint joinPoint) {

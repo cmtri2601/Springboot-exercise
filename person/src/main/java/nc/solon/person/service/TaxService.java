@@ -36,10 +36,10 @@ public class TaxService {
 
     public void produceManual(List<TaxInDTO> taxBatch) {
         taxBatch.forEach(
-            tax -> {
-                TaxCalculationEvent event = new TaxCalculationEvent(tax.getTaxId(), tax.getAmount());
-                taxProducer.sendManualEvent(event);
-            }
+                tax -> {
+                    TaxCalculationEvent event = new TaxCalculationEvent(tax.getTaxId(), tax.getAmount());
+                    taxProducer.sendManualEvent(event);
+                }
         );
     }
 

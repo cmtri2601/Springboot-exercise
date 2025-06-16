@@ -33,7 +33,7 @@ public class PersonEventsConsumer {
         try {
             PersonEvent event = objectMapper.readValue(message, PersonEvent.class);
             if (event == null || event.getEventType() == null) {
-                log.warn(ErrorMessage.MALFORMED_EVENT ,message);
+                log.warn(ErrorMessage.MALFORMED_EVENT, message);
                 return;
             }
 

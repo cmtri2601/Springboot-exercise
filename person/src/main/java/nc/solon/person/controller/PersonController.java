@@ -19,14 +19,14 @@ public class PersonController {
     private final PersonService personService;
 
     @PostMapping
-    public ResponseEntity<Void> createPerson(@Valid  @RequestBody PersonInDTO personInDTO) throws JsonProcessingException {
+    public ResponseEntity<Void> createPerson(@Valid @RequestBody PersonInDTO personInDTO) throws JsonProcessingException {
         personService.createPerson(personInDTO);
         return ResponseEntity.accepted().build();
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updatePerson(@PathVariable Long id,
-                                                     @Valid @RequestBody PersonInDTO personInDTO) throws JsonProcessingException {
+                                             @Valid @RequestBody PersonInDTO personInDTO) throws JsonProcessingException {
         personService.updatePerson(id, personInDTO);
         return ResponseEntity.accepted().build();
     }

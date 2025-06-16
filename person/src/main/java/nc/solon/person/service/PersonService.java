@@ -26,7 +26,7 @@ public class PersonService {
         eventProducer.sendEvent(event);
     }
 
-    public void updatePerson(Long id, PersonInDTO dto)  {
+    public void updatePerson(Long id, PersonInDTO dto) {
         PersonEvent event = new PersonEvent(PersonEvent.EventType.UPDATE, id, dto);
         eventProducer.sendEvent(event);
     }
