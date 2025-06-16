@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/** The type Person events producer. */
 @Service
 @RequiredArgsConstructor
 public class PersonEventsProducer {
@@ -19,6 +20,11 @@ public class PersonEventsProducer {
   @Value("${kafka.topics.person.events.name}")
   private String personEventsTopic;
 
+  /**
+   * Send event.
+   *
+   * @param event the event
+   */
   public void sendEvent(PersonEvent event) {
     try {
       String json = objectMapper.writeValueAsString(event);

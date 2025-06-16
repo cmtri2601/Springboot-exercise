@@ -14,6 +14,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+/** The type Kafka consumer config. */
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
@@ -33,6 +34,11 @@ public class KafkaConsumerConfig {
   @Value("${kafka.topics.person.fixed-backoff.max-attempts}")
   private int maxAttempts;
 
+  /**
+   * Consumer factory.
+   *
+   * @return the consumer factory
+   */
   @Bean
   public ConsumerFactory<String, String> consumerFactory() {
     Map<String, Object> props = new HashMap<>();
@@ -42,6 +48,11 @@ public class KafkaConsumerConfig {
     return new DefaultKafkaConsumerFactory<>(props);
   }
 
+  /**
+   * Kafka listener container factory concurrent kafka listener container factory.
+   *
+   * @return the concurrent kafka listener container factory
+   */
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
     ConcurrentKafkaListenerContainerFactory<String, String> factory =

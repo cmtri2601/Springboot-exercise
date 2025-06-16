@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+/** The type Tax calculation producer. */
 @Service
 @RequiredArgsConstructor
 public class TaxCalculationProducer {
@@ -26,6 +27,11 @@ public class TaxCalculationProducer {
   @Value("${kafka.topics.tax.calculation.manual.name}")
   private String taxManualConsumeTopic;
 
+  /**
+   * Send event.
+   *
+   * @param event the event
+   */
   public void sendEvent(TaxCalculationEvent event) {
     try {
       String json = objectMapper.writeValueAsString(event);
@@ -35,6 +41,11 @@ public class TaxCalculationProducer {
     }
   }
 
+  /**
+   * Send batch event.
+   *
+   * @param batch the batch
+   */
   public void sendBatchEvent(List<TaxCalculationEvent> batch) {
     try {
       String json = objectMapper.writeValueAsString(batch);
@@ -44,6 +55,11 @@ public class TaxCalculationProducer {
     }
   }
 
+  /**
+   * Send manual event.
+   *
+   * @param event the event
+   */
   public void sendManualEvent(TaxCalculationEvent event) {
     try {
       String key = event.getTaxId();

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import nc.solon.person.dto.PersonInDTO;
 
+/** The type Person event. */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,9 +16,13 @@ public class PersonEvent {
   private Long personId;
   private PersonInDTO payload;
 
+  /** The enum Event type. */
   public enum EventType {
+    /** Create event type. */
     CREATE,
+    /** Update event type. */
     UPDATE,
+    /** Delete event type. */
     DELETE
   }
 }

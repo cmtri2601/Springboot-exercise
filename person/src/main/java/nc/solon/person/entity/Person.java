@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.*;
 
+/** The type Person. */
 @Entity
 @Table(name = "persons")
 @Getter

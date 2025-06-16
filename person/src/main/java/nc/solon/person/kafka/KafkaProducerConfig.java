@@ -10,6 +10,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
+/** The type Kafka producer config. */
 @Configuration
 public class KafkaProducerConfig {
   @Value("${spring.kafka.bootstrap-servers}")
@@ -21,6 +22,11 @@ public class KafkaProducerConfig {
   @Value("${spring.kafka.producer.value-serializer}")
   private String valueDeserializer;
 
+  /**
+   * Producer factory.
+   *
+   * @return the producer factory
+   */
   @Bean
   public ProducerFactory<String, String> producerFactory() {
     Map<String, Object> config = new HashMap<>();
@@ -30,6 +36,11 @@ public class KafkaProducerConfig {
     return new DefaultKafkaProducerFactory<>(config);
   }
 
+  /**
+   * Kafka template kafka template.
+   *
+   * @return the kafka template
+   */
   @Bean
   public KafkaTemplate<String, String> kafkaTemplate() {
     return new KafkaTemplate<>(producerFactory());

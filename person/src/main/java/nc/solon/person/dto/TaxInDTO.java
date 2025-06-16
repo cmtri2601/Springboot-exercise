@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
+/** The type Tax in dto. */
 @Getter
 @Setter
 public class TaxInDTO {

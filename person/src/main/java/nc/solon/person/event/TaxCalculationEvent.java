@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/** The type Tax calculation event. */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.*;
 
+/** The type Person in dto. */
 @Getter
 @Setter
 @NoArgsConstructor

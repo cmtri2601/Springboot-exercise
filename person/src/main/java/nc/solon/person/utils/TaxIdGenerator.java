@@ -5,11 +5,17 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
+/** The type Tax id generator. */
 @Component
 public class TaxIdGenerator {
 
   @PersistenceContext private EntityManager entityManager;
 
+  /**
+   * Generate tax id string.
+   *
+   * @return the string
+   */
   @Transactional
   public String generateTaxId() {
     Long nextVal =

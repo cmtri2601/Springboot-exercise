@@ -11,9 +11,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/** The type Global exception handler. */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  /**
+   * Handle entity not found response entity.
+   *
+   * @param ex the ex
+   * @return the response entity
+   */
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<Map<String, Object>> handleEntityNotFound(EntityNotFoundException ex) {
     Map<String, Object> body = new HashMap<>();
@@ -24,6 +31,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
   }
 
+  /**
+   * Handle validation exception response entity.
+   *
+   * @param ex the ex
+   * @return the response entity
+   */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, Object>> handleValidationException(
       MethodArgumentNotValidException ex) {
@@ -39,6 +52,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
+  /**
+   * Handle kafka exception response entity.
+   *
+   * @param ex the ex
+   * @return the response entity
+   */
   @ExceptionHandler(KafkaException.class)
   public ResponseEntity<Map<String, Object>> handleKafkaException(KafkaException ex) {
     Map<String, Object> body = new HashMap<>();
@@ -49,6 +68,12 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
   }
 
+  /**
+   * Handle generic exception response entity.
+   *
+   * @param ex the ex
+   * @return the response entity
+   */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
     Map<String, Object> body = new HashMap<>();

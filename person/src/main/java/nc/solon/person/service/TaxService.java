@@ -10,6 +10,7 @@ import nc.solon.person.kafka.tax.calculation.TaxCalculationConsumer;
 import nc.solon.person.kafka.tax.calculation.TaxCalculationProducer;
 import org.springframework.stereotype.Service;
 
+/** The type Tax service. */
 @Service
 @RequiredArgsConstructor
 public class TaxService {
@@ -17,11 +18,21 @@ public class TaxService {
   private final TaxCalculationProducer taxProducer;
   private final TaxCalculationConsumer taxConsumer;
 
+  /**
+   * Calculate tax.
+   *
+   * @param dto the dto
+   */
   public void calculateTax(TaxInDTO dto) {
     TaxCalculationEvent event = new TaxCalculationEvent(dto.getTaxId(), dto.getAmount());
     taxProducer.sendEvent(event);
   }
 
+  /**
+   * Calculate tax batch.
+   *
+   * @param taxBatch the tax batch
+   */
   public void calculateTaxBatch(List<TaxInDTO> taxBatch) {
     // Create a list of ProducerRecords
     List<TaxCalculationEvent> eventBatch =
@@ -33,6 +44,11 @@ public class TaxService {
     taxProducer.sendBatchEvent(eventBatch);
   }
 
+  /**
+   * Produce manual.
+   *
+   * @param taxBatch the tax batch
+   */
   public void produceManual(List<TaxInDTO> taxBatch) {
     taxBatch.forEach(
         tax -> {
@@ -41,6 +57,12 @@ public class TaxService {
         });
   }
 
+  /**
+   * Consume manual manual consume tax out dto.
+   *
+   * @param count the count
+   * @return the manual consume tax out dto
+   */
   public ManualConsumeTaxOutDTO consumeManual(int count) {
     return taxConsumer.consumeManual(count);
   }

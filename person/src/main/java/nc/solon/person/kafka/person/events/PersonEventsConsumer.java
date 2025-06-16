@@ -18,6 +18,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
+/** The type Person events consumer. */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,6 +27,12 @@ public class PersonEventsConsumer {
   private final ObjectMapper objectMapper;
   private final TaxIdGenerator taxIdGenerator;
 
+  /**
+   * Consume.
+   *
+   * @param message the message
+   * @param ack the ack
+   */
   @Auditable(action = Action.PERSON_CONSUME)
   @KafkaListener(
       topics = "${kafka.topics.person.events.name}",

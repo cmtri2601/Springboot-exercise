@@ -28,6 +28,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
+/** The type Tax calculation consumer. */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -72,6 +73,12 @@ public class TaxCalculationConsumer {
   @Value("${kafka.topics.tax.calculation.retry.max-retries}")
   private int retryMaxRetries;
 
+  /**
+   * Consume.
+   *
+   * @param message the message
+   * @param ack the ack
+   */
   @Auditable(action = Action.TAX_CONSUME)
   @KafkaListener(
       topics = "${kafka.topics.tax.calculation.single.name}",
@@ -85,6 +92,12 @@ public class TaxCalculationConsumer {
     ack.acknowledge();
   }
 
+  /**
+   * Retry consume.
+   *
+   * @param record the record
+   * @param ack the ack
+   */
   @Auditable(action = Action.TAX_RETRY_CONSUME)
   @KafkaListener(
       topics = "${kafka.topics.tax.calculation.retry.name}",
@@ -122,6 +135,12 @@ public class TaxCalculationConsumer {
     ack.acknowledge();
   }
 
+  /**
+   * Consume batch.
+   *
+   * @param batch the batch
+   * @param ack the ack
+   */
   @Auditable(action = Action.TAX_BATCH_CONSUME)
   @KafkaListener(
       topics = "${kafka.topics.tax.calculation.batch.name}",
@@ -137,6 +156,12 @@ public class TaxCalculationConsumer {
     }
   }
 
+  /**
+   * Consume manual manual consume tax out dto.
+   *
+   * @param count the count
+   * @return the manual consume tax out dto
+   */
   @Auditable(action = Action.TAX_MANUAL_CONSUME)
   public ManualConsumeTaxOutDTO consumeManual(int count) {
     List<TaxCalculationEvent> batch = new ArrayList<>();

@@ -8,11 +8,20 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+/** The type Method audit aspect. */
 @Aspect
 @Component
 @Slf4j
 public class MethodAuditAspect {
 
+  /**
+   * Audit method object.
+   *
+   * @param joinPoint the join point
+   * @param auditable the auditable
+   * @return the object
+   * @throws Throwable the throwable
+   */
   @Around("@annotation(auditable)")
   public Object auditMethod(ProceedingJoinPoint joinPoint, Auditable auditable) throws Throwable {
     String action = auditable.action();

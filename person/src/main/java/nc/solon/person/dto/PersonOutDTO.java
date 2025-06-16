@@ -3,6 +3,7 @@ package nc.solon.person.dto;
 import java.math.BigDecimal;
 import lombok.*;
 
+/** The type Person out dto. */
 @Getter
 @Setter
 @NoArgsConstructor
