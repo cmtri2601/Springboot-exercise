@@ -2,51 +2,23 @@ package nc.solon.person.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Objects;
+import nc.solon.person.common.AbstractIntegrationTest;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.dto.PersonOutDTO;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.*;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.kafka.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@Testcontainers
-@Transactional
-public class PersonControllerIntegrationTest {
+public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
 
-  @Container @ServiceConnection
-  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16.0");
+ @Autowired private TestRestTemplate restTemplate;
 
-  @Container @ServiceConnection
-  static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("apache/kafka"));
-
-  @DynamicPropertySource
-  static void overrideKafkaProps(DynamicPropertyRegistry registry) {
-    registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
-  }
-
-  @Autowired private TestRestTemplate restTemplate;
-
-  private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
   private static final Duration KAFKA_TIMEOUT = Duration.ofMillis(5000);
 
   @Test
