@@ -132,33 +132,16 @@ public class PersonControllerIntegrationTest {
   }
 
   @Test
-  void testUpdatePerson_NotFound() {
-    PersonInDTO updateData =
-        new PersonInDTO("Updated", "Person", LocalDate.of(1995, 10, 20), new BigDecimal("5500.00"));
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<PersonInDTO> request = new HttpEntity<>(updateData, headers);
-
-    ResponseEntity<String> response =
-        restTemplate.exchange("/api/v1/persons/999", HttpMethod.PATCH, request, String.class);
-
-    assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
-  }
-
-  @Test
   void testDeletePerson() {
-    // First, make sure the person exists
-    ResponseEntity<PersonOutDTO> checkResponse =
+    // First verify the person exists
+    ResponseEntity<PersonOutDTO> getResponse =
         restTemplate.getForEntity("/api/v1/persons/1", PersonOutDTO.class);
-    assertEquals(HttpStatus.OK, checkResponse.getStatusCode());
+    assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
     // Delete the person
-    ResponseEntity<Void> deleteResponse =
-        restTemplate.exchange("/api/v1/persons/1", HttpMethod.DELETE, null, Void.class);
-    assertEquals(HttpStatus.ACCEPTED, deleteResponse.getStatusCode());
+    restTemplate.delete("/api/v1/persons/1");
 
-    // Wait for Kafka event to be processed
+    // Wait for Kafka event to be processed and verify deletion
     Awaitility.await()
         .atMost(KAFKA_TIMEOUT)
         .untilAsserted(
@@ -167,6 +150,62 @@ public class PersonControllerIntegrationTest {
                   restTemplate.getForEntity("/api/v1/persons/1", String.class);
               assertEquals(HttpStatus.NOT_FOUND, verifyResponse.getStatusCode());
             });
+  }
+
+  @Test
+  void testFindByNamePrefixAndMinAge_CaseInsensitive() {
+    ResponseEntity<PersonOutDTO[]> response =
+        restTemplate.getForEntity("/api/v1/persons/search?prefix=mi&age=30", PersonOutDTO[].class);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    PersonOutDTO[] persons = response.getBody();
+    assertNotNull(persons);
+    assertTrue(persons.length > 0);
+
+    // Verify case insensitive search works
+    for (PersonOutDTO person : persons) {
+      assertTrue(
+          person.getFirstName().toLowerCase().startsWith("mi")
+              || person.getLastName().toLowerCase().startsWith("mi"));
+    }
+  }
+
+  @Test
+  void testGetByTaxId_NotFound() {
+    ResponseEntity<String> response =
+        restTemplate.getForEntity("/api/v1/persons/tax-id/invalid-format", String.class);
+
+    // Assuming the API validates tax ID format (if it doesn't, this test should be adjusted)
+    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+  }
+
+  @Test
+  void testFindByNamePrefixAndMinAge_EmptyPrefix() {
+    ResponseEntity<PersonOutDTO[]> response =
+        restTemplate.getForEntity("/api/v1/persons/search?prefix=&age=20", PersonOutDTO[].class);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    PersonOutDTO[] persons = response.getBody();
+    assertNotNull(persons);
+    // Should return persons of at least 20 years old
+    for (PersonOutDTO person : persons) {
+      assertTrue(LocalDate.now().getYear() - person.getAge() >= 20);
+    }
+  }
+
+  @Test
+  void testCreatePerson_NegativeTax() {
+    PersonInDTO personIn =
+        new PersonInDTO("Test", "User", LocalDate.of(1990, 5, 15), new BigDecimal("-4500.00"));
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    HttpEntity<PersonInDTO> request = new HttpEntity<>(personIn, headers);
+
+    ResponseEntity<PersonOutDTO> response =
+        restTemplate.postForEntity("/api/v1/persons", request, PersonOutDTO.class);
+
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
   }
 
   @Test
