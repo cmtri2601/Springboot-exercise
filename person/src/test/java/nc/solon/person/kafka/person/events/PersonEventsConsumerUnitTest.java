@@ -26,23 +26,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
 
+/** The type Person events consumer unit test. */
 @ExtendWith(MockitoExtension.class)
 class PersonEventsConsumerUnitTest {
 
-  @Mock
-  private PersonRepository personRepository;
+  @Mock private PersonRepository personRepository;
 
-  @Mock
-  private ObjectMapper objectMapper;
+  @Mock private ObjectMapper objectMapper;
 
-  @Mock
-  private TaxIdGenerator taxIdGenerator;
-  
-  @Mock
-  private Acknowledgment acknowledgment;
+  @Mock private TaxIdGenerator taxIdGenerator;
 
-  @InjectMocks
-  private PersonEventsConsumer personEventsConsumer;
+  @Mock private Acknowledgment acknowledgment;
+
+  @InjectMocks private PersonEventsConsumer personEventsConsumer;
 
   private PersonEvent createEvent;
   private PersonEvent updateEvent;
@@ -52,36 +48,44 @@ class PersonEventsConsumerUnitTest {
   private String serializedCreateEvent;
   private String serializedUpdateEvent;
   private String serializedDeleteEvent;
-  private String generatedTaxId = "TAX12345";
+  private final String generatedTaxId = "TAX12345";
 
+  /** Sets up. */
   @BeforeEach
   void setUp() {
     // Create test data
-    personInDTO = PersonInDTO.builder()
-        .firstName("John")
-        .lastName("Doe")
-        .dateOfBirth(LocalDate.of(1990, 1, 1))
-        .taxDebt(BigDecimal.valueOf(100.00))
-        .build();
+    personInDTO =
+        PersonInDTO.builder()
+            .firstName("John")
+            .lastName("Doe")
+            .dateOfBirth(LocalDate.of(1990, 1, 1))
+            .taxDebt(BigDecimal.valueOf(100.00))
+            .build();
 
     createEvent = new PersonEvent(PersonEvent.EventType.CREATE, null, personInDTO);
     updateEvent = new PersonEvent(PersonEvent.EventType.UPDATE, 1L, personInDTO);
     deleteEvent = new PersonEvent(PersonEvent.EventType.DELETE, 1L, null);
 
-    existingPerson = Person.builder()
-        .id(1L)
-        .firstName("Old First Name")
-        .lastName("Old Last Name")
-        .dateOfBirth(LocalDate.of(1980, 1, 1))
-        .taxId(generatedTaxId)
-        .taxDebt(BigDecimal.valueOf(200.00))
-        .build();
+    existingPerson =
+        Person.builder()
+            .id(1L)
+            .firstName("Old First Name")
+            .lastName("Old Last Name")
+            .dateOfBirth(LocalDate.of(1980, 1, 1))
+            .taxId(generatedTaxId)
+            .taxDebt(BigDecimal.valueOf(200.00))
+            .build();
 
     serializedCreateEvent = "{\"eventType\":\"CREATE\",\"personId\":null,\"payload\":{...}}";
     serializedUpdateEvent = "{\"eventType\":\"UPDATE\",\"personId\":1,\"payload\":{...}}";
     serializedDeleteEvent = "{\"eventType\":\"DELETE\",\"personId\":1,\"payload\":null}";
   }
 
+  /**
+   * Consume create event success.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_CreateEvent_Success() throws JsonProcessingException {
     // Arrange
@@ -104,6 +108,11 @@ class PersonEventsConsumerUnitTest {
     assertEquals(BigDecimal.ZERO, capturedPerson.getTaxDebt());
   }
 
+  /**
+   * Consume update event success.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_UpdateEvent_Success() throws JsonProcessingException {
     // Arrange
@@ -127,6 +136,11 @@ class PersonEventsConsumerUnitTest {
     assertEquals(personInDTO.getTaxDebt(), capturedPerson.getTaxDebt());
   }
 
+  /**
+   * Consume delete event success.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_DeleteEvent_Success() throws JsonProcessingException {
     // Arrange
@@ -140,6 +154,11 @@ class PersonEventsConsumerUnitTest {
     verify(acknowledgment).acknowledge();
   }
 
+  /**
+   * Consume update event person not found.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_UpdateEvent_PersonNotFound() throws JsonProcessingException {
     // Arrange
@@ -147,13 +166,19 @@ class PersonEventsConsumerUnitTest {
     when(personRepository.findById(anyLong())).thenReturn(Optional.empty());
 
     // Act & Assert
-    assertThrows(EntityNotFoundException.class, () -> 
-        personEventsConsumer.consume(serializedUpdateEvent, acknowledgment));
-    
+    assertThrows(
+        EntityNotFoundException.class,
+        () -> personEventsConsumer.consume(serializedUpdateEvent, acknowledgment));
+
     verify(acknowledgment).acknowledge();
     verify(personRepository, never()).save(any(Person.class));
   }
 
+  /**
+   * Consume malformed event.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_MalformedEvent() throws JsonProcessingException {
     // Arrange
@@ -168,6 +193,11 @@ class PersonEventsConsumerUnitTest {
     verify(acknowledgment).acknowledge();
   }
 
+  /**
+   * Consume null event type.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_NullEventType() throws JsonProcessingException {
     // Arrange
@@ -183,10 +213,16 @@ class PersonEventsConsumerUnitTest {
     verify(acknowledgment).acknowledge();
   }
 
+  /**
+   * Consume serialization error.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_SerializationError() throws JsonProcessingException {
     // Arrange
-    when(objectMapper.readValue(anyString(), eq(PersonEvent.class))).thenThrow(new JsonProcessingException("Error processing JSON") {});
+    when(objectMapper.readValue(anyString(), eq(PersonEvent.class)))
+        .thenThrow(new JsonProcessingException("Error processing JSON") {});
 
     // Act
     personEventsConsumer.consume("invalid-json", acknowledgment);

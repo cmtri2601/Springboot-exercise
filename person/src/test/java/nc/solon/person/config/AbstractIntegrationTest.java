@@ -12,18 +12,26 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
+/** The type Abstract integration test. */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Testcontainers
 @Transactional
 public abstract class AbstractIntegrationTest {
 
+  /** The constant POSTGRES. */
   @Container @ServiceConnection
   static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16.0");
 
+  /** The constant KAFKA. */
   @Container @ServiceConnection
   static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka"));
 
+  /**
+   * Register properties.
+   *
+   * @param registry the registry
+   */
   @DynamicPropertySource
   static void registerProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.kafka.bootstrap-servers", KAFKA::getBootstrapServers);

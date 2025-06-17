@@ -15,12 +15,14 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/** The type Person repository integration test. */
 @DataJpaTest
 @Testcontainers
 @ActiveProfiles("test")
 @Transactional
 class PersonRepositoryIntegrationTest {
 
+  /** The constant postgres. */
   @Container @ServiceConnection
   static PostgreSQLContainer<?> postgres =
       new PostgreSQLContainer<>("postgres:16")
@@ -30,6 +32,7 @@ class PersonRepositoryIntegrationTest {
 
   @Autowired private PersonRepository personRepository;
 
+  /** Find by name prefix and older than should return matching persons. */
   @Test
   void findByNamePrefixAndOlderThan_shouldReturnMatchingPersons() {
     // Arrange
@@ -47,6 +50,7 @@ class PersonRepositoryIntegrationTest {
     assertEquals(LocalDate.of(1980, 5, 15), matchedPerson.getDateOfBirth());
   }
 
+  /** Find by name prefix and older than with last name prefix should return matching persons. */
   @Test
   void findByNamePrefixAndOlderThan_withLastNamePrefix_shouldReturnMatchingPersons() {
     // Arrange
@@ -74,6 +78,7 @@ class PersonRepositoryIntegrationTest {
     assertTrue(foundMitchell, "Person with last name 'Mitchell' should be found");
   }
 
+  /** Find by name prefix and older than with no matches should return empty list. */
   @Test
   void findByNamePrefixAndOlderThan_withNoMatches_shouldReturnEmptyList() {
     // Arrange
@@ -87,6 +92,7 @@ class PersonRepositoryIntegrationTest {
     assertTrue(result.isEmpty());
   }
 
+  /** Find by name prefix and older than is case insensitive. */
   @Test
   void findByNamePrefixAndOlderThan_isCaseInsensitive() {
     // Arrange

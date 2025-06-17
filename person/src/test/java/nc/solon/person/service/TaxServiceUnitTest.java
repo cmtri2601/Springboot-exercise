@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/** The type Tax service unit test. */
 @ExtendWith(MockitoExtension.class)
 class TaxServiceUnitTest {
 
@@ -38,6 +39,7 @@ class TaxServiceUnitTest {
   private List<TaxInDTO> taxBatch;
   private ManualConsumeTaxOutDTO manualConsumeTaxOutDTO;
 
+  /** Sets up. */
   @BeforeEach
   void setUp() {
     // Setup test data
@@ -56,6 +58,7 @@ class TaxServiceUnitTest {
     manualConsumeTaxOutDTO = new ManualConsumeTaxOutDTO(events, 5, true);
   }
 
+  /** Calculate tax should send event to producer. */
   @Test
   void calculateTax_shouldSendEventToProducer() {
     // When
@@ -68,6 +71,7 @@ class TaxServiceUnitTest {
     assertEquals(taxInDTO.getAmount(), capturedEvent.getAmount());
   }
 
+  /** Calculate tax batch should send batch events to producer. */
   @Test
   void calculateTaxBatch_shouldSendBatchEventsToProducer() {
     // When
@@ -84,6 +88,7 @@ class TaxServiceUnitTest {
     assertEquals(taxBatch.get(1).getAmount(), capturedEvents.get(1).getAmount());
   }
 
+  /** Produce manual should send manual events to producer. */
   @Test
   void produceManual_shouldSendManualEventsToProducer() {
     // When
@@ -100,6 +105,7 @@ class TaxServiceUnitTest {
     assertEquals(taxBatch.get(1).getAmount(), capturedEvents.get(1).getAmount());
   }
 
+  /** Consume manual should return dto from consumer. */
   @Test
   void consumeManual_shouldReturnDTOFromConsumer() {
     // Given

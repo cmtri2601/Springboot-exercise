@@ -27,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+/** The type Person controller unit test. */
 @ExtendWith(MockitoExtension.class)
 class PersonControllerUnitTest {
 
@@ -37,6 +38,7 @@ class PersonControllerUnitTest {
   private MockMvc mockMvc;
   private ObjectMapper objectMapper;
 
+  /** Sets up. */
   @BeforeEach
   void setUp() {
     mockMvc = MockMvcBuilders.standaloneSetup(personController).build();
@@ -44,6 +46,11 @@ class PersonControllerUnitTest {
     objectMapper.registerModule(new JavaTimeModule());
   }
 
+  /**
+   * Gets all persons should return list of persons.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void getAllPersons_ShouldReturnListOfPersons() throws Exception {
     // Given
@@ -66,6 +73,11 @@ class PersonControllerUnitTest {
     verify(personService).getAllPersons();
   }
 
+  /**
+   * Gets person by id with existing id should return person.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void getPersonById_WithExistingId_ShouldReturnPerson() throws Exception {
     // Given
@@ -83,6 +95,11 @@ class PersonControllerUnitTest {
     verify(personService).getPersonById(1L);
   }
 
+  /**
+   * Gets person by id with non existing id should return 404.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void getPersonById_WithNonExistingId_ShouldReturn404() throws Exception {
     // Given
@@ -94,6 +111,11 @@ class PersonControllerUnitTest {
     verify(personService).getPersonById(999L);
   }
 
+  /**
+   * Create person with valid data should return accepted.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void createPerson_WithValidData_ShouldReturnAccepted() throws Exception {
     // Given
@@ -111,6 +133,11 @@ class PersonControllerUnitTest {
     verify(personService).createPerson(any(PersonInDTO.class));
   }
 
+  /**
+   * Create person with invalid data should return bad request.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void createPerson_WithInvalidData_ShouldReturnBadRequest() throws Exception {
     // Given
@@ -127,6 +154,11 @@ class PersonControllerUnitTest {
     verify(personService, never()).createPerson(any(PersonInDTO.class));
   }
 
+  /**
+   * Update person with valid data should return accepted.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void updatePerson_WithValidData_ShouldReturnAccepted() throws Exception {
     // Given
@@ -144,6 +176,11 @@ class PersonControllerUnitTest {
     verify(personService).updatePerson(eq(1L), any(PersonInDTO.class));
   }
 
+  /**
+   * Delete person should call service and return no content.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void deletePerson_ShouldCallServiceAndReturnNoContent() throws Exception {
     // When/Then
@@ -152,6 +189,11 @@ class PersonControllerUnitTest {
     verify(personService).deletePerson(1L);
   }
 
+  /**
+   * Gets person by tax id with existing tax id should return person.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void getPersonByTaxId_WithExistingTaxId_ShouldReturnPerson() throws Exception {
     // Given
@@ -167,6 +209,11 @@ class PersonControllerUnitTest {
     verify(personService).getPersonByTaxId("TID12345");
   }
 
+  /**
+   * Gets person by tax id with non existing tax id should return 404.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void getPersonByTaxId_WithNonExistingTaxId_ShouldReturn404() throws Exception {
     // Given
@@ -178,6 +225,11 @@ class PersonControllerUnitTest {
     verify(personService).getPersonByTaxId("INVALID");
   }
 
+  /**
+   * Find by name prefix and min age should return matching persons.
+   *
+   * @throws Exception the exception
+   */
   @Test
   void findByNamePrefixAndMinAge_ShouldReturnMatchingPersons() throws Exception {
     // Given

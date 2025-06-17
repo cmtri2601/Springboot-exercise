@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
+/** The type Person controller integration test. */
 public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
 
   @Autowired private TestRestTemplate restTemplate;
@@ -26,11 +27,13 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
 
   private String url;
 
+  /** Sets up. */
   @BeforeEach
   public void setUp() {
     url = prefix + "/persons";
   }
 
+  /** Test get all persons. */
   @Test
   void testGetAllPersons() {
     ResponseEntity<PersonOutDTO[]> response = restTemplate.getForEntity(url, PersonOutDTO[].class);
@@ -39,6 +42,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     assertTrue(Objects.requireNonNull(response.getBody()).length > 0);
   }
 
+  /** Test get person by id. */
   @Test
   void testGetPersonById() {
     ResponseEntity<PersonOutDTO> response =
@@ -49,6 +53,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     assertNotNull(response.getBody().getFirstName());
   }
 
+  /** Test get person by id not found. */
   @Test
   void testGetPersonById_NotFound() {
     ResponseEntity<String> response = restTemplate.getForEntity(url + "/999", String.class);
@@ -56,6 +61,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 
+  /** Test create person. */
   @Test
   void testCreatePerson() {
     PersonInDTO personIn =
@@ -83,6 +89,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
             });
   }
 
+  /** Test update person. */
   @Test
   void testUpdatePerson() {
     PersonInDTO updateData =
@@ -111,6 +118,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
             });
   }
 
+  /** Test delete person. */
   @Test
   void testDeletePerson() {
     // First verify the person exists
@@ -132,6 +140,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
             });
   }
 
+  /** Test find by name prefix and min age case insensitive. */
   @Test
   void testFindByNamePrefixAndMinAge_CaseInsensitive() {
     ResponseEntity<PersonOutDTO[]> response =
@@ -150,6 +159,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     }
   }
 
+  /** Test get by tax id not found. */
   @Test
   void testGetByTaxId_NotFound() {
     ResponseEntity<String> response =
@@ -159,6 +169,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
 
+  /** Test find by name prefix and min age empty prefix. */
   @Test
   void testFindByNamePrefixAndMinAge_EmptyPrefix() {
     ResponseEntity<PersonOutDTO[]> response =
@@ -173,6 +184,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     }
   }
 
+  /** Test create person negative tax. */
   @Test
   void testCreatePerson_NegativeTax() {
     PersonInDTO personIn =
@@ -188,6 +200,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
   }
 
+  /** Test invalid input bad request. */
   @Test
   void testInvalidInput_BadRequest() {
     PersonInDTO invalidPerson = new PersonInDTO("", "", null, new BigDecimal("-100.00"));

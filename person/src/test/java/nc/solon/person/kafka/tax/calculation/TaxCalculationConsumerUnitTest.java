@@ -1,16 +1,18 @@
 package nc.solon.person.kafka.tax.calculation;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
-import nc.solon.person.dto.ManualConsumeTaxOutDTO;
 import nc.solon.person.entity.Person;
 import nc.solon.person.event.TaxCalculationEvent;
 import nc.solon.person.repository.PersonRepository;
@@ -25,14 +27,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-
+/** The type Tax calculation consumer unit test. */
 @ExtendWith(MockitoExtension.class)
 class TaxCalculationConsumerUnitTest {
 
@@ -50,6 +46,11 @@ class TaxCalculationConsumerUnitTest {
   private TaxCalculationEvent testEvent;
   private String testJson;
 
+  /**
+   * Sets up.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @BeforeEach
   void setUp() throws JsonProcessingException {
     // Setup test data
@@ -70,6 +71,11 @@ class TaxCalculationConsumerUnitTest {
     when(objectMapper.readValue(testJson, TaxCalculationEvent.class)).thenReturn(testEvent);
   }
 
+  /**
+   * Consume should update person tax debt when valid message received.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_shouldUpdatePersonTaxDebt_whenValidMessageReceived() throws JsonProcessingException {
     // Arrange
@@ -87,6 +93,11 @@ class TaxCalculationConsumerUnitTest {
     assertEquals(new BigDecimal("1500.00"), savedPerson.getTaxDebt());
   }
 
+  /**
+   * Consume should send to retry topic when exception occurs.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consume_shouldSendToRetryTopic_whenExceptionOccurs() throws JsonProcessingException {
     // Arrange
@@ -100,6 +111,11 @@ class TaxCalculationConsumerUnitTest {
     verify(acknowledgment).acknowledge();
   }
 
+  /**
+   * Retry consume should update person tax debt when valid message received.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void retryConsume_shouldUpdatePersonTaxDebt_whenValidMessageReceived()
       throws JsonProcessingException {
@@ -115,6 +131,12 @@ class TaxCalculationConsumerUnitTest {
     verify(acknowledgment).acknowledge();
   }
 
+  /**
+   * Retry consume should retry with incremented count when exception occurs and retry count less
+   * than max.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void retryConsume_shouldRetryWithIncrementedCount_whenExceptionOccursAndRetryCountLessThanMax()
       throws JsonProcessingException {
@@ -138,6 +160,11 @@ class TaxCalculationConsumerUnitTest {
     assertEquals(testJson, producerRecord.value());
   }
 
+  /**
+   * Retry consume should send to dlt topic when exception occurs and retry count reaches max.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void retryConsume_shouldSendToDltTopic_whenExceptionOccursAndRetryCountReachesMax()
       throws JsonProcessingException {
@@ -154,6 +181,11 @@ class TaxCalculationConsumerUnitTest {
     verify(acknowledgment).acknowledge();
   }
 
+  /**
+   * Consume batch should process all events when valid batch received.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consumeBatch_shouldProcessAllEvents_whenValidBatchReceived() throws JsonProcessingException {
     // Arrange
@@ -174,6 +206,11 @@ class TaxCalculationConsumerUnitTest {
     verify(acknowledgment).acknowledge();
   }
 
+  /**
+   * Consume batch should not acknowledge when exception occurs.
+   *
+   * @throws JsonProcessingException the json processing exception
+   */
   @Test
   void consumeBatch_shouldNotAcknowledge_whenExceptionOccurs() throws JsonProcessingException {
     // Arrange

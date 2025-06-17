@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
+/** The type Tax calculation controller integration test. */
 public class TaxCalculationControllerIntegrationTest extends AbstractIntegrationTest {
   @Autowired private TestRestTemplate restTemplate;
 
@@ -24,11 +25,13 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
 
   private String url;
 
+  /** Sets up. */
   @BeforeEach
   public void setUp() {
     url = prefix + "/tax-calculation";
   }
 
+  /** Test calculate tax. */
   @Test
   void testCalculateTax() {
     TaxInDTO taxInDTO = new TaxInDTO("TAX000001", new BigDecimal(10));
@@ -42,6 +45,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
     assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
   }
 
+  /** Test calculate tax invalid input. */
   @Test
   void testCalculateTax_InvalidInput() {
     TaxInDTO taxInDTO = new TaxInDTO("TAX00000000000000001", new BigDecimal("-10.00"));
@@ -55,6 +59,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
   }
 
+  /** Test calculate tax batch. */
   @Test
   void testCalculateTaxBatch() {
     List<TaxInDTO> batch =
@@ -72,6 +77,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
     assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
   }
 
+  /** Test calculate tax batch invalid input. */
   @Test
   void testCalculateTaxBatch_InvalidInput() {
     List<TaxInDTO> batch =
@@ -90,6 +96,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
   }
 
+  /** Test produce manual. */
   @Test
   void testProduceManual() {
     List<TaxInDTO> batch =
@@ -108,6 +115,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
     assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
   }
 
+  /** Test consume manual. */
   @Test
   void testConsumeManual() {
     // First produce some tax calculations to consume
@@ -131,6 +139,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
     assertNotNull(response.getBody());
   }
 
+  /** Test consume manual default count. */
   @Test
   void testConsumeManual_DefaultCount() {
     // Test the default count parameter

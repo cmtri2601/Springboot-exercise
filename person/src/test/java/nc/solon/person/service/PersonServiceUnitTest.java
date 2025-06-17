@@ -24,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/** The type Person service unit test. */
 @ExtendWith(MockitoExtension.class)
 class PersonServiceUnitTest {
 
@@ -37,6 +38,7 @@ class PersonServiceUnitTest {
   private Person person;
   private PersonOutDTO personOutDTO;
 
+  /** Sets up. */
   @BeforeEach
   void setUp() {
     // Create sample data for tests
@@ -69,6 +71,7 @@ class PersonServiceUnitTest {
             .build();
   }
 
+  /** Create person should send create event. */
   @Test
   void createPerson_shouldSendCreateEvent() {
     // When
@@ -84,6 +87,7 @@ class PersonServiceUnitTest {
     assertEquals(personInDTO, capturedEvent.getPayload());
   }
 
+  /** Update person should send update event. */
   @Test
   void updatePerson_shouldSendUpdateEvent() {
     // Given
@@ -102,6 +106,7 @@ class PersonServiceUnitTest {
     assertEquals(personInDTO, capturedEvent.getPayload());
   }
 
+  /** Delete person should send delete event. */
   @Test
   void deletePerson_shouldSendDeleteEvent() {
     // Given
@@ -120,6 +125,7 @@ class PersonServiceUnitTest {
     assertNull(capturedEvent.getPayload());
   }
 
+  /** Gets person by id when person exists should return person. */
   @Test
   void getPersonById_whenPersonExists_shouldReturnPerson() {
     // Given
@@ -139,6 +145,7 @@ class PersonServiceUnitTest {
     verify(personRepository).findById(personId);
   }
 
+  /** Gets person by id when person does not exist should return empty. */
   @Test
   void getPersonById_whenPersonDoesNotExist_shouldReturnEmpty() {
     // Given
@@ -153,6 +160,7 @@ class PersonServiceUnitTest {
     verify(personRepository).findById(personId);
   }
 
+  /** Gets person by tax id when person exists should return person. */
   @Test
   void getPersonByTaxId_whenPersonExists_shouldReturnPerson() {
     // Given
@@ -172,6 +180,7 @@ class PersonServiceUnitTest {
     verify(personRepository).findByTaxId(taxId);
   }
 
+  /** Gets person by tax id when person does not exist should return empty. */
   @Test
   void getPersonByTaxId_whenPersonDoesNotExist_shouldReturnEmpty() {
     // Given
@@ -186,6 +195,7 @@ class PersonServiceUnitTest {
     verify(personRepository).findByTaxId(taxId);
   }
 
+  /** Gets all persons when persons exist should return all persons. */
   @Test
   void getAllPersons_whenPersonsExist_shouldReturnAllPersons() {
     // Given
@@ -206,6 +216,7 @@ class PersonServiceUnitTest {
     verify(personRepository).findAll();
   }
 
+  /** Gets all persons when no persons exist should return empty list. */
   @Test
   void getAllPersons_whenNoPersonsExist_shouldReturnEmptyList() {
     // Given
@@ -219,6 +230,7 @@ class PersonServiceUnitTest {
     verify(personRepository).findAll();
   }
 
+  /** Find persons by name prefix and min age should return filtered persons. */
   @Test
   void findPersonsByNamePrefixAndMinAge_shouldReturnFilteredPersons() {
     // Given
@@ -241,6 +253,7 @@ class PersonServiceUnitTest {
     verify(personRepository).findByNamePrefixAndOlderThan(eq(prefix), any(LocalDate.class));
   }
 
+  /** Find persons by name prefix and min age when no matching persons should return empty list. */
   @Test
   void findPersonsByNamePrefixAndMinAge_whenNoMatchingPersons_shouldReturnEmptyList() {
     // Given
