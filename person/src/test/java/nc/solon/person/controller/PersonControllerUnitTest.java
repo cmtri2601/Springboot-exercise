@@ -177,4 +177,26 @@ class PersonControllerUnitTest {
 
     verify(personService).getPersonByTaxId("INVALID");
   }
+
+  @Test
+  void findByNamePrefixAndMinAge_ShouldReturnMatchingPersons() throws Exception {
+    // Given
+    List<PersonOutDTO> persons =
+        Arrays.asList(
+            new PersonOutDTO(1L, "John", "Doe", 30, "123456789", new BigDecimal(33)),
+            new PersonOutDTO(2L, "Jonathan", "Smith", 35, "987654321", new BigDecimal(38)));
+    when(personService.findPersonsByNamePrefixAndMinAge("Jo", 30)).thenReturn(persons);
+
+    // When/Then
+    mockMvc
+        .perform(get("/persons/search").param("prefix", "Jo").param("minAge", "30"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].firstName").value("John"))
+        .andExpect(jsonPath("$[1].id").value(2))
+        .andExpect(jsonPath("$[1].firstName").value("Jonathan"));
+
+    verify(personService).findPersonsByNamePrefixAndMinAge("Jo", 30);
+  }
 }
