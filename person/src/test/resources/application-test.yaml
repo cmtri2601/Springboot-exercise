@@ -1,5 +1,6 @@
 server:
   port: 0  # Let Spring Boot choose a random port during tests
+  prefix: /api/v1
 
 spring:
   application:
@@ -24,7 +25,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/test-db.changelog-master.yaml
-    
+
 logging:
   level:
     root: INFO

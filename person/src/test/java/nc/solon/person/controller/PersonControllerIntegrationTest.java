@@ -3,28 +3,37 @@ package nc.solon.person.controller;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Objects;
-import nc.solon.person.common.AbstractIntegrationTest;
+import nc.solon.person.config.AbstractIntegrationTest;
+import nc.solon.person.constant.KafkaTest;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.dto.PersonOutDTO;
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
 public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
 
- @Autowired private TestRestTemplate restTemplate;
+  @Autowired private TestRestTemplate restTemplate;
 
-  private static final Duration KAFKA_TIMEOUT = Duration.ofMillis(5000);
+  @Value("${server.prefix}")
+  private String prefix;
+
+  private String url;
+
+  @BeforeEach
+  public void setUp() {
+    url = prefix + "/persons";
+  }
 
   @Test
   void testGetAllPersons() {
-    ResponseEntity<PersonOutDTO[]> response =
-        restTemplate.getForEntity("/api/v1/persons", PersonOutDTO[].class);
+    ResponseEntity<PersonOutDTO[]> response = restTemplate.getForEntity(url, PersonOutDTO[].class);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertTrue(Objects.requireNonNull(response.getBody()).length > 0);
@@ -33,7 +42,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   @Test
   void testGetPersonById() {
     ResponseEntity<PersonOutDTO> response =
-        restTemplate.getForEntity("/api/v1/persons/1", PersonOutDTO.class);
+        restTemplate.getForEntity(url + "/1", PersonOutDTO.class);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(1L, response.getBody().getId());
@@ -42,8 +51,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
 
   @Test
   void testGetPersonById_NotFound() {
-    ResponseEntity<String> response =
-        restTemplate.getForEntity("/api/v1/persons/999", String.class);
+    ResponseEntity<String> response = restTemplate.getForEntity(url + "/999", String.class);
 
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
   }
@@ -58,17 +66,17 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     HttpEntity<PersonInDTO> request = new HttpEntity<>(personIn, headers);
 
     ResponseEntity<PersonOutDTO> response =
-        restTemplate.postForEntity("/api/v1/persons", request, PersonOutDTO.class);
+        restTemplate.postForEntity(url, request, PersonOutDTO.class);
 
     assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
 
     // Wait for Kafka event to be processed
     Awaitility.await()
-        .atMost(KAFKA_TIMEOUT)
+        .atMost(KafkaTest.KAFKA_TIMEOUT)
         .untilAsserted(
             () -> {
               ResponseEntity<PersonOutDTO> verifyResponse =
-                  restTemplate.getForEntity("/api/v1/persons/5", PersonOutDTO.class);
+                  restTemplate.getForEntity(url + "/5", PersonOutDTO.class);
               assertEquals(HttpStatus.OK, verifyResponse.getStatusCode());
               assertEquals("Test", Objects.requireNonNull(verifyResponse.getBody()).getFirstName());
               assertEquals("User", verifyResponse.getBody().getLastName());
@@ -85,17 +93,17 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     HttpEntity<PersonInDTO> request = new HttpEntity<>(updateData, headers);
 
     ResponseEntity<PersonOutDTO> response =
-        restTemplate.exchange("/api/v1/persons/2", HttpMethod.PATCH, request, PersonOutDTO.class);
+        restTemplate.exchange(url + "/2", HttpMethod.PATCH, request, PersonOutDTO.class);
 
     assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
 
     // Wait for Kafka event to be processed
     Awaitility.await()
-        .atMost(KAFKA_TIMEOUT)
+        .atMost(KafkaTest.KAFKA_TIMEOUT)
         .untilAsserted(
             () -> {
               ResponseEntity<PersonOutDTO> verifyResponse =
-                  restTemplate.getForEntity("/api/v1/persons/2", PersonOutDTO.class);
+                  restTemplate.getForEntity(url + "/2", PersonOutDTO.class);
               assertEquals(HttpStatus.OK, verifyResponse.getStatusCode());
               assertEquals(
                   "Updated", Objects.requireNonNull(verifyResponse.getBody()).getFirstName());
@@ -107,15 +115,15 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   void testDeletePerson() {
     // First verify the person exists
     ResponseEntity<PersonOutDTO> getResponse =
-        restTemplate.getForEntity("/api/v1/persons/1", PersonOutDTO.class);
+        restTemplate.getForEntity(url + "/1", PersonOutDTO.class);
     assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
     // Delete the person
-    restTemplate.delete("/api/v1/persons/1");
+    restTemplate.delete(url + "/1");
 
     // Wait for Kafka event to be processed and verify deletion
     Awaitility.await()
-        .atMost(KAFKA_TIMEOUT)
+        .atMost(KafkaTest.KAFKA_TIMEOUT)
         .untilAsserted(
             () -> {
               ResponseEntity<String> verifyResponse =
@@ -127,7 +135,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   @Test
   void testFindByNamePrefixAndMinAge_CaseInsensitive() {
     ResponseEntity<PersonOutDTO[]> response =
-        restTemplate.getForEntity("/api/v1/persons/search?prefix=mi&age=30", PersonOutDTO[].class);
+        restTemplate.getForEntity(url + "/search?prefix=mi&age=30", PersonOutDTO[].class);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     PersonOutDTO[] persons = response.getBody();
@@ -145,7 +153,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   @Test
   void testGetByTaxId_NotFound() {
     ResponseEntity<String> response =
-        restTemplate.getForEntity("/api/v1/persons/tax-id/invalid-format", String.class);
+        restTemplate.getForEntity(url + "/tax-id/invalid-format", String.class);
 
     // Assuming the API validates tax ID format (if it doesn't, this test should be adjusted)
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -154,7 +162,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   @Test
   void testFindByNamePrefixAndMinAge_EmptyPrefix() {
     ResponseEntity<PersonOutDTO[]> response =
-        restTemplate.getForEntity("/api/v1/persons/search?prefix=&age=20", PersonOutDTO[].class);
+        restTemplate.getForEntity(url + "/search?prefix=&age=20", PersonOutDTO[].class);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     PersonOutDTO[] persons = response.getBody();
@@ -175,7 +183,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     HttpEntity<PersonInDTO> request = new HttpEntity<>(personIn, headers);
 
     ResponseEntity<PersonOutDTO> response =
-        restTemplate.postForEntity("/api/v1/persons", request, PersonOutDTO.class);
+        restTemplate.postForEntity(url, request, PersonOutDTO.class);
 
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
   }
@@ -188,8 +196,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
     headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<PersonInDTO> request = new HttpEntity<>(invalidPerson, headers);
 
-    ResponseEntity<String> response =
-        restTemplate.postForEntity("/api/v1/persons", request, String.class);
+    ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
     assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
   }

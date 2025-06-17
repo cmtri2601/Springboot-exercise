@@ -1,9 +1,9 @@
 package nc.solon.person.controller;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import nc.solon.person.dto.ManualConsumeTaxOutDTO;
+import nc.solon.person.dto.TaxBatchInDTO;
 import nc.solon.person.dto.TaxInDTO;
 import nc.solon.person.service.TaxService;
 import org.springframework.http.ResponseEntity;
@@ -31,24 +31,24 @@ public class TaxCalculationController {
   /**
    * Calculate tax batch response entity.
    *
-   * @param batch the batch
+   * @param batchDto the batch
    * @return the response entity
    */
   @PostMapping("/batch")
-  public ResponseEntity<Void> calculateTaxBatch(@RequestBody List<@Valid TaxInDTO> batch) {
-    taxService.calculateTaxBatch(batch);
+  public ResponseEntity<Void> calculateTaxBatch(@RequestBody @Valid TaxBatchInDTO batchDto) {
+    taxService.calculateTaxBatch(batchDto.getBatch());
     return ResponseEntity.accepted().build();
   }
 
   /**
    * Produce manual response entity.
    *
-   * @param batch the batch
+   * @param batchDto the batch
    * @return the response entity
    */
   @PostMapping("manual")
-  public ResponseEntity<Void> produceManual(@RequestBody List<@Valid TaxInDTO> batch) {
-    taxService.produceManual(batch);
+  public ResponseEntity<Void> produceManual(@RequestBody @Valid TaxBatchInDTO batchDto) {
+    taxService.produceManual(batchDto.getBatch());
     return ResponseEntity.accepted().build();
   }
 

@@ -2,15 +2,21 @@ package nc.solon.person.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** The type Tax in dto. */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TaxInDTO {
   @NotBlank(message = "Tax id is mandatory")
+  @Size(max = 10, message = "Tax id must not exceed 10 characters")
   private String taxId;
 
   @NotNull(message = "Tax amount is mandatory")
