@@ -39,42 +39,45 @@ spring:
 logging:
   level:
     root: INFO
-    org.springframework.kafka: OFF
+    org.springframework.kafka: DEBUG
     org.hibernate.SQL: DEBUG
 
 kafka:
   topics:
     person:
       events:
-        name: person.events.test
+        name: person.events
+      fixed-backoff:
+        interval: 0
+        max-attempts: 3
     tax:
       calculation:
         single:
-          name: tax.calculation.test
+          name: tax.calculation
         retry:
-          name: tax.calculation-retry.test
+          name: tax.calculation-retry
           header: retry-count
-          max-retries: 1
+          max-retries: 3
         dlt:
-          name: tax.calculation-dlt.test
+          name: tax.calculation-dlt
         batch:
-          name: tax.calculation-batch.test
+          name: tax.calculation-batch
         manual:
-          name: tax.calculation-manual-consume.test
-          partitions: 1
+          name: tax.calculation-manual-consume
+          partitions: 3
 
   groups:
     person:
       events:
-        name: person-group-test
+        name: person-group
     tax:
       calculation:
         single:
-          name: tax-single-test
+          name: tax-single
         batch:
-          name: tax-batch-test
+          name: tax-batch
         manual:
-          name: tax-manual-test
+          name: tax-manual
           enable-auto-commit-config: false
           auto-offset-reset-config: earliest
           session-timeout-ms-config: 300000
