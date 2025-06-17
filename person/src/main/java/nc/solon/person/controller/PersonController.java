@@ -23,11 +23,9 @@ public class PersonController {
    *
    * @param personInDTO the person in dto
    * @return the response entity
-   * @throws JsonProcessingException the json processing exception
    */
   @PostMapping
-  public ResponseEntity<Void> createPerson(@Valid @RequestBody PersonInDTO personInDTO)
-      throws JsonProcessingException {
+  public ResponseEntity<Void> createPerson(@Valid @RequestBody PersonInDTO personInDTO) {
     personService.createPerson(personInDTO);
     return ResponseEntity.accepted().build();
   }
@@ -42,8 +40,7 @@ public class PersonController {
    */
   @PatchMapping("/{id}")
   public ResponseEntity<Void> updatePerson(
-      @PathVariable Long id, @Valid @RequestBody PersonInDTO personInDTO)
-      throws JsonProcessingException {
+      @PathVariable Long id, @Valid @RequestBody PersonInDTO personInDTO) {
     personService.updatePerson(id, personInDTO);
     return ResponseEntity.accepted().build();
   }

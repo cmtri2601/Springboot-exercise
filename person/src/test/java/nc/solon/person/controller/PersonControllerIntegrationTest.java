@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Objects;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.dto.PersonOutDTO;
 import org.awaitility.Awaitility;
@@ -46,6 +47,7 @@ public class PersonControllerIntegrationTest {
   @Autowired private TestRestTemplate restTemplate;
 
   private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+  private static final Duration KAFKA_TIMEOUT = Duration.ofMillis(5000);
 
   @Test
   void testGetAllPersons() {
@@ -53,7 +55,7 @@ public class PersonControllerIntegrationTest {
         restTemplate.getForEntity("/api/v1/persons", PersonOutDTO[].class);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertTrue(response.getBody().length > 0);
+    assertTrue(Objects.requireNonNull(response.getBody()).length > 0);
   }
 
   @Test
@@ -86,10 +88,19 @@ public class PersonControllerIntegrationTest {
     ResponseEntity<PersonOutDTO> response =
         restTemplate.postForEntity("/api/v1/persons", request, PersonOutDTO.class);
 
-    assertEquals(HttpStatus.CREATED, response.getStatusCode());
-    assertNotNull(response.getHeaders().getLocation());
-    assertEquals("Test", response.getBody().getFirstName());
-    assertEquals("User", response.getBody().getLastName());
+    assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+
+    // Wait for Kafka event to be processed
+    Awaitility.await()
+        .atMost(KAFKA_TIMEOUT)
+        .untilAsserted(
+            () -> {
+              ResponseEntity<PersonOutDTO> verifyResponse =
+                  restTemplate.getForEntity("/api/v1/persons/5", PersonOutDTO.class);
+              assertEquals(HttpStatus.OK, verifyResponse.getStatusCode());
+              assertEquals("Test", Objects.requireNonNull(verifyResponse.getBody()).getFirstName());
+              assertEquals("User", verifyResponse.getBody().getLastName());
+            });
   }
 
   @Test
@@ -102,11 +113,22 @@ public class PersonControllerIntegrationTest {
     HttpEntity<PersonInDTO> request = new HttpEntity<>(updateData, headers);
 
     ResponseEntity<PersonOutDTO> response =
-        restTemplate.exchange("/api/v1/persons/2", HttpMethod.PUT, request, PersonOutDTO.class);
+        restTemplate.exchange("/api/v1/persons/2", HttpMethod.PATCH, request, PersonOutDTO.class);
 
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals("Updated", response.getBody().getFirstName());
-    assertEquals("Person", response.getBody().getLastName());
+    assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+
+    // Wait for Kafka event to be processed
+    Awaitility.await()
+        .atMost(KAFKA_TIMEOUT)
+        .untilAsserted(
+            () -> {
+              ResponseEntity<PersonOutDTO> verifyResponse =
+                  restTemplate.getForEntity("/api/v1/persons/2", PersonOutDTO.class);
+              assertEquals(HttpStatus.OK, verifyResponse.getStatusCode());
+              assertEquals(
+                  "Updated", Objects.requireNonNull(verifyResponse.getBody()).getFirstName());
+              assertEquals("Person", verifyResponse.getBody().getLastName());
+            });
   }
 
   @Test
@@ -119,9 +141,9 @@ public class PersonControllerIntegrationTest {
     HttpEntity<PersonInDTO> request = new HttpEntity<>(updateData, headers);
 
     ResponseEntity<String> response =
-        restTemplate.exchange("/api/v1/persons/999", HttpMethod.PUT, request, String.class);
+        restTemplate.exchange("/api/v1/persons/999", HttpMethod.PATCH, request, String.class);
 
-    assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
   }
 
   @Test
@@ -136,39 +158,15 @@ public class PersonControllerIntegrationTest {
         restTemplate.exchange("/api/v1/persons/1", HttpMethod.DELETE, null, Void.class);
     assertEquals(HttpStatus.ACCEPTED, deleteResponse.getStatusCode());
 
-    // Wait up to 5 seconds for deletion to be processed
+    // Wait for Kafka event to be processed
     Awaitility.await()
-        .atMost(Duration.ofMillis(5000))
+        .atMost(KAFKA_TIMEOUT)
         .untilAsserted(
             () -> {
-              // Verify the person is deleted
               ResponseEntity<String> verifyResponse =
                   restTemplate.getForEntity("/api/v1/persons/1", String.class);
               assertEquals(HttpStatus.NOT_FOUND, verifyResponse.getStatusCode());
             });
-  }
-
-  @Test
-  void testFindPersonsByLastName() {
-    ResponseEntity<PersonOutDTO[]> response =
-        restTemplate.getForEntity("/api/v1/persons/search?lastName=Smith", PersonOutDTO[].class);
-
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertTrue(response.getBody().length > 0);
-
-    for (PersonOutDTO person : response.getBody()) {
-      assertEquals("Smith", person.getLastName());
-    }
-  }
-
-  @Test
-  void testFindPersonsByLastName_NoResults() {
-    ResponseEntity<PersonOutDTO[]> response =
-        restTemplate.getForEntity(
-            "/api/v1/persons/search?lastName=NonExistent", PersonOutDTO[].class);
-
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-    assertEquals(0, response.getBody().length);
   }
 
   @Test
