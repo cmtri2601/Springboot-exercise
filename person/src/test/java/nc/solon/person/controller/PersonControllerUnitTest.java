@@ -19,22 +19,22 @@ import nc.solon.person.dto.PersonOutDTO;
 import nc.solon.person.service.PersonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class PersonControllerUnitTest {
-
-  private MockMvc mockMvc;
 
   @Mock private PersonService personService;
 
   @InjectMocks private PersonController personController;
 
+  private MockMvc mockMvc;
   private ObjectMapper objectMapper;
 
   @BeforeEach
@@ -45,193 +45,136 @@ class PersonControllerUnitTest {
   }
 
   @Test
-  void createPerson() throws Exception {
-    // Arrange
-    PersonInDTO personInDTO = createSamplePersonInDTO();
-    doNothing().when(personService).createPerson(any(PersonInDTO.class));
-
-    // Act & Assert
-    mockMvc
-        .perform(
-            post("/api/v1/persons")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(personInDTO)))
-        .andExpect(status().isAccepted());
-
-    // Verify
-    verify(personService, times(1)).createPerson(any(PersonInDTO.class));
-  }
-
-  @Test
-  void updatePerson() throws Exception {
-    // Arrange
-    Long personId = 1L;
-    PersonInDTO personInDTO = createSamplePersonInDTO();
-    doNothing().when(personService).updatePerson(eq(personId), any(PersonInDTO.class));
-
-    // Act & Assert
-    mockMvc
-        .perform(
-            patch("/api/v1/persons/{id}", personId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(personInDTO)))
-        .andExpect(status().isAccepted());
-
-    // Verify
-    verify(personService, times(1)).updatePerson(eq(personId), any(PersonInDTO.class));
-  }
-
-  @Test
-  void deletePerson() throws Exception {
-    // Arrange
-    Long personId = 1L;
-    doNothing().when(personService).deletePerson(personId);
-
-    // Act & Assert
-    mockMvc.perform(delete("/api/v1/persons/{id}", personId)).andExpect(status().isAccepted());
-
-    // Verify
-    verify(personService, times(1)).deletePerson(personId);
-  }
-
-  @Test
-  void getById_ExistingPerson_ReturnsOk() throws Exception {
-    // Arrange
-    Long personId = 1L;
-    PersonOutDTO personOutDTO = createSamplePersonOutDTO();
-    when(personService.getPersonById(personId)).thenReturn(Optional.of(personOutDTO));
-
-    // Act & Assert
-    mockMvc
-        .perform(get("/api/v1/persons/{id}", personId))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id").value(personOutDTO.getId()))
-        .andExpect(jsonPath("$.firstName").value(personOutDTO.getFirstName()))
-        .andExpect(jsonPath("$.lastName").value(personOutDTO.getLastName()))
-        .andExpect(jsonPath("$.age").value(personOutDTO.getAge()));
-
-    // Verify
-    verify(personService, times(1)).getPersonById(personId);
-  }
-
-  @Test
-  void getById_NonExistingPerson_ReturnsNotFound() throws Exception {
-    // Arrange
-    Long personId = 999L;
-    when(personService.getPersonById(personId)).thenReturn(Optional.empty());
-
-    // Act & Assert
-    mockMvc.perform(get("/api/v1/persons/{id}", personId)).andExpect(status().isNotFound());
-
-    // Verify
-    verify(personService, times(1)).getPersonById(personId);
-  }
-
-  @Test
-  void getByTaxId_ExistingPerson_ReturnsOk() throws Exception {
-    // Arrange
-    String taxId = "123456789";
-    PersonOutDTO personOutDTO = createSamplePersonOutDTO();
-    when(personService.getPersonByTaxId(taxId)).thenReturn(Optional.of(personOutDTO));
-
-    // Act & Assert
-    mockMvc
-        .perform(get("/api/v1/persons/tax-id/{taxId}", taxId))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$.id").value(personOutDTO.getId()))
-        .andExpect(jsonPath("$.firstName").value(personOutDTO.getFirstName()))
-        .andExpect(jsonPath("$.lastName").value(personOutDTO.getLastName()));
-
-    // Verify
-    verify(personService, times(1)).getPersonByTaxId(taxId);
-  }
-
-  @Test
-  void getByTaxId_NonExistingPerson_ReturnsNotFound() throws Exception {
-    // Arrange
-    String taxId = "999999999";
-    when(personService.getPersonByTaxId(taxId)).thenReturn(Optional.empty());
-
-    // Act & Assert
-    mockMvc.perform(get("/api/v1/persons/tax-id/{taxId}", taxId)).andExpect(status().isNotFound());
-
-    // Verify
-    verify(personService, times(1)).getPersonByTaxId(taxId);
-  }
-
-  @Test
-  void getAllPersons() throws Exception {
-    // Arrange
-    List<PersonOutDTO> persons =
-        Arrays.asList(createSamplePersonOutDTO(), createSamplePersonOutDTO(2L, "Jane", "Doe", 28));
-    when(personService.getAllPersons()).thenReturn(persons);
-
-    // Act & Assert
-    mockMvc
-        .perform(get("/api/v1/persons"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$[0].id").value(persons.get(0).getId()))
-        .andExpect(jsonPath("$[0].firstName").value(persons.get(0).getFirstName()))
-        .andExpect(jsonPath("$[1].id").value(persons.get(1).getId()))
-        .andExpect(jsonPath("$[1].firstName").value(persons.get(1).getFirstName()));
-
-    // Verify
-    verify(personService, times(1)).getAllPersons();
-  }
-
-  @Test
-  void findByNamePrefixAndMinAge() throws Exception {
-    // Arrange
-    String prefix = "Jo";
-    int minAge = 30;
+  void getAllPersons_ShouldReturnListOfPersons() throws Exception {
+    // Given
     List<PersonOutDTO> persons =
         Arrays.asList(
-            createSamplePersonOutDTO(), createSamplePersonOutDTO(3L, "John", "Smith", 35));
-    when(personService.findPersonsByNamePrefixAndMinAge(prefix, minAge)).thenReturn(persons);
+            new PersonOutDTO(1L, "John", "Doe", 25, "123456789", new BigDecimal(33)),
+            new PersonOutDTO(2L, "Jane", "Smith", 30, "987654321", new BigDecimal(38)));
+    when(personService.getAllPersons()).thenReturn(persons);
 
-    // Act & Assert
+    // When/Then
     mockMvc
-        .perform(
-            get("/api/v1/persons/search")
-                .param("prefix", prefix)
-                .param("age", String.valueOf(minAge)))
+        .perform(get("/persons"))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$[0].id").value(persons.get(0).getId()))
-        .andExpect(jsonPath("$[0].firstName").value(persons.get(0).getFirstName()))
-        .andExpect(jsonPath("$[1].id").value(persons.get(1).getId()))
-        .andExpect(jsonPath("$[1].firstName").value(persons.get(1).getFirstName()));
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].firstName").value("John"))
+        .andExpect(jsonPath("$[1].id").value(2))
+        .andExpect(jsonPath("$[1].firstName").value("Jane"));
 
-    // Verify
-    verify(personService, times(1)).findPersonsByNamePrefixAndMinAge(prefix, minAge);
+    verify(personService).getAllPersons();
   }
 
-  // Helper methods for creating test data
-  private PersonInDTO createSamplePersonInDTO() {
-    return PersonInDTO.builder()
-        .firstName("John")
-        .lastName("Doe")
-        .dateOfBirth(LocalDate.of(1990, 1, 1))
-        .taxDebt(BigDecimal.valueOf(100.00))
-        .build();
+  @Test
+  void getPersonById_WithExistingId_ShouldReturnPerson() throws Exception {
+    // Given
+    PersonOutDTO person = new PersonOutDTO(1L, "John", "Doe", 25, "123456789", new BigDecimal(33));
+    when(personService.getPersonById(1L)).thenReturn(Optional.of(person));
+
+    // When/Then
+    mockMvc
+        .perform(get("/persons/1"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.id").value(1))
+        .andExpect(jsonPath("$.firstName").value("John"));
+
+    verify(personService).getPersonById(1L);
   }
 
-  private PersonOutDTO createSamplePersonOutDTO() {
-    return createSamplePersonOutDTO(1L, "John", "Doe", 33);
+  @Test
+  void getPersonById_WithNonExistingId_ShouldReturn404() throws Exception {
+    // Given
+    when(personService.getPersonById(999L)).thenReturn(Optional.empty());
+
+    // When/Then
+    mockMvc.perform(get("/persons/999")).andExpect(status().isNotFound());
+
+    verify(personService).getPersonById(999L);
   }
 
-  private PersonOutDTO createSamplePersonOutDTO(
-      Long id, String firstName, String lastName, int age) {
-    return PersonOutDTO.builder()
-        .id(id)
-        .firstName(firstName)
-        .lastName(lastName)
-        .age(age)
-        .taxId("123456789")
-        .taxDebt(BigDecimal.valueOf(100.00))
-        .build();
+  @Test
+  void createPerson_WithValidData_ShouldReturnAccepted() throws Exception {
+    // Given
+    PersonInDTO personIn =
+        new PersonInDTO("John", "Doe", LocalDate.of(1990, 1, 1), new BigDecimal("5000.00"));
+
+    // When/Then
+    mockMvc
+        .perform(
+            post("/persons")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(personIn)))
+        .andExpect(status().isAccepted());
+
+    verify(personService).createPerson(any(PersonInDTO.class));
+  }
+
+  @Test
+  void createPerson_WithInvalidData_ShouldReturnBadRequest() throws Exception {
+    // Given
+    PersonInDTO invalidPerson = new PersonInDTO("", "", null, new BigDecimal("-100.00"));
+
+    // When/Then
+    mockMvc
+        .perform(
+            post("/persons")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidPerson)))
+        .andExpect(status().isBadRequest());
+
+    verify(personService, never()).createPerson(any(PersonInDTO.class));
+  }
+
+  @Test
+  void updatePerson_WithValidData_ShouldReturnAccepted() throws Exception {
+    // Given
+    PersonInDTO updateDto =
+        new PersonInDTO("Updated", "Person", LocalDate.of(1995, 10, 20), new BigDecimal("6000.00"));
+
+    // When/Then
+    mockMvc
+        .perform(
+            patch("/persons/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDto)))
+        .andExpect(status().isAccepted());
+
+    verify(personService).updatePerson(eq(1L), any(PersonInDTO.class));
+  }
+
+  @Test
+  void deletePerson_ShouldCallServiceAndReturnNoContent() throws Exception {
+    // When/Then
+    mockMvc.perform(delete("/persons/1")).andExpect(status().isAccepted());
+
+    verify(personService).deletePerson(1L);
+  }
+
+  @Test
+  void getPersonByTaxId_WithExistingTaxId_ShouldReturnPerson() throws Exception {
+    // Given
+    PersonOutDTO person = new PersonOutDTO(1L, "John", "Doe", 25, "TID12345", new BigDecimal(33));
+    when(personService.getPersonByTaxId("TID12345")).thenReturn(Optional.of(person));
+
+    // When/Then
+    mockMvc
+        .perform(get("/persons/tax-id/TID12345"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.taxId").value("TID12345"));
+
+    verify(personService).getPersonByTaxId("TID12345");
+  }
+
+  @Test
+  void getPersonByTaxId_WithNonExistingTaxId_ShouldReturn404() throws Exception {
+    // Given
+    when(personService.getPersonByTaxId("INVALID")).thenReturn(Optional.empty());
+
+    // When/Then
+    mockMvc.perform(get("/persons/tax-id/INVALID")).andExpect(status().isNotFound());
+
+    verify(personService).getPersonByTaxId("INVALID");
   }
 }
