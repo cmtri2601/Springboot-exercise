@@ -1,6 +1,5 @@
 package nc.solon.person.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,6 @@ public class PersonController {
    * @param id the id
    * @param personInDTO the person in dto
    * @return the response entity
-   * @throws JsonProcessingException the json processing exception
    */
   @PatchMapping("/{id}")
   public ResponseEntity<Void> updatePerson(
