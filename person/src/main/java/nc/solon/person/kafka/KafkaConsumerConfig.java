@@ -2,8 +2,9 @@ package nc.solon.person.kafka;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import nc.solon.person.property.KafkaProperties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -17,22 +18,9 @@ import org.springframework.util.backoff.FixedBackOff;
 /** The type Kafka consumer config. */
 @EnableKafka
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConsumerConfig {
-
-  @Value("${spring.kafka.consumer.key-deserializer}")
-  private String keyDeserializer;
-
-  @Value("${spring.kafka.consumer.value-deserializer}")
-  private String valueDeserializer;
-
-  @Value("${spring.kafka.bootstrap-servers}")
-  private String bootstrapServers;
-
-  @Value("${kafka.topics.person.fixed-backoff.interval}")
-  private int interval;
-
-  @Value("${kafka.topics.person.fixed-backoff.max-attempts}")
-  private int maxAttempts;
+  private final KafkaProperties kafkaProperties;
 
   /**
    * Consumer factory.
@@ -42,9 +30,13 @@ public class KafkaConsumerConfig {
   @Bean
   public ConsumerFactory<String, String> consumerFactory() {
     Map<String, Object> props = new HashMap<>();
-    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer);
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer);
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+    props.put(
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        kafkaProperties.getConsumer().getKeyDeserializer());
+    props.put(
+        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        kafkaProperties.getConsumer().getValueDeserializer());
     return new DefaultKafkaConsumerFactory<>(props);
   }
 
@@ -59,8 +51,10 @@ public class KafkaConsumerConfig {
         new ConcurrentKafkaListenerContainerFactory<String, String>();
     factory.setConsumerFactory(consumerFactory());
     factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+    var fixedBackoff = kafkaProperties.getTopics().getPersonEvents().getFixedBackoff();
     DefaultErrorHandler errorHandler =
-        new DefaultErrorHandler(new FixedBackOff(interval, maxAttempts));
+        new DefaultErrorHandler(
+            new FixedBackOff(fixedBackoff.getInterval(), fixedBackoff.getMaxAttempts()));
     factory.setCommonErrorHandler(errorHandler);
 
     return factory;

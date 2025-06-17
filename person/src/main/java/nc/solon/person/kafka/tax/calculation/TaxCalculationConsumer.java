@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
@@ -17,12 +16,12 @@ import nc.solon.person.constant.LogMessage;
 import nc.solon.person.dto.ManualConsumeTaxOutDTO;
 import nc.solon.person.entity.Person;
 import nc.solon.person.event.TaxCalculationEvent;
+import nc.solon.person.property.KafkaProperties;
 import nc.solon.person.repository.PersonRepository;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeader;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
@@ -36,42 +35,7 @@ public class TaxCalculationConsumer {
   private final PersonRepository repository;
   private final ObjectMapper objectMapper;
   private final KafkaTemplate<String, String> kafkaTemplate;
-
-  @Value("${spring.kafka.bootstrap-servers}")
-  private String bootstrapServers;
-
-  @Value("${spring.kafka.consumer.key-deserializer}")
-  private String keyDeserializer;
-
-  @Value("${spring.kafka.consumer.value-deserializer}")
-  private String valueDeserializer;
-
-  @Value("${kafka.topics.tax.calculation.retry.name}")
-  private String taxRetryTopic;
-
-  @Value("${kafka.topics.tax.calculation.dlt.name}")
-  private String taxDtlTopic;
-
-  @Value("${kafka.topics.tax.calculation.manual.name}")
-  private String taxManualTopic;
-
-  @Value("${kafka.groups.tax.calculation.manual.name}")
-  private String taxManualGroup;
-
-  @Value("${kafka.groups.tax.calculation.manual.enable-auto-commit-config}")
-  private String manualAutoCommit;
-
-  @Value("${kafka.groups.tax.calculation.manual.auto-offset-reset-config}")
-  private String manualAutoOffsetReset;
-
-  @Value("${kafka.groups.tax.calculation.manual.session-timeout-ms-config}")
-  private int manualSessionTimeoutMs;
-
-  @Value("${kafka.topics.tax.calculation.retry.header}")
-  private String retryHeader;
-
-  @Value("${kafka.topics.tax.calculation.retry.max-retries}")
-  private int retryMaxRetries;
+  private final KafkaProperties kafkaProperties;
 
   /**
    * Consume.
@@ -81,8 +45,8 @@ public class TaxCalculationConsumer {
    */
   @Auditable(action = Action.TAX_CONSUME)
   @KafkaListener(
-      topics = "${kafka.topics.tax.calculation.single.name}",
-      groupId = "${kafka.groups.tax.calculation.single.name}")
+      topics = "${kafka.topics.tax-calculation.single.name}",
+      groupId = "${kafka.groups.tax-calculation.single.name}")
   public void consume(String message, Acknowledgment ack) {
     try {
       handleTaxCalculationEvent(message);
@@ -100,8 +64,8 @@ public class TaxCalculationConsumer {
    */
   @Auditable(action = Action.TAX_RETRY_CONSUME)
   @KafkaListener(
-      topics = "${kafka.topics.tax.calculation.retry.name}",
-      groupId = "${kafka.groups.tax.calculation.single.name}")
+      topics = "${kafka.topics.tax-calculation.retry.name}",
+      groupId = "${kafka.groups.tax-calculation.single.name}")
   public void retryConsume(ConsumerRecord<String, String> record, Acknowledgment ack) {
     String message = record.value();
     int retryCount = getRetryCount(record);
@@ -111,11 +75,15 @@ public class TaxCalculationConsumer {
     } catch (Exception e) {
       log.error(ErrorMessage.FAIL_PROCESS_KAFKA, message, e);
 
-      if (retryCount < retryMaxRetries) {
-        // retry 3 times
+      String retryHeader = kafkaProperties.getTopics().getTaxCalculation().getRetry().getHeader();
+      int maxRetries = kafkaProperties.getTopics().getTaxCalculation().getRetry().getMaxRetries();
+      String retryTopic = kafkaProperties.getTopics().getTaxCalculation().getRetry().getName();
+      String dltTopic = kafkaProperties.getTopics().getTaxCalculation().getDlt().getName();
+
+      if (retryCount < maxRetries) {
         ProducerRecord<String, String> producerRecord =
             new ProducerRecord<>(
-                taxRetryTopic,
+                retryTopic,
                 null,
                 null,
                 null,
@@ -125,13 +93,14 @@ public class TaxCalculationConsumer {
                         retryHeader,
                         String.valueOf(retryCount + 1).getBytes(StandardCharsets.UTF_8))));
         kafkaTemplate.send(producerRecord);
-        log.info(LogMessage.SENT_TO_TOPIC, taxRetryTopic);
+        log.info(LogMessage.SENT_TO_TOPIC, retryTopic);
         log.info(LogMessage.RETRY_COUNT, retryCount);
       } else {
-        kafkaTemplate.send(taxDtlTopic, message);
-        log.info(LogMessage.SENT_TO_TOPIC, taxDtlTopic);
+        kafkaTemplate.send(dltTopic, message);
+        log.info(LogMessage.SENT_TO_TOPIC, dltTopic);
       }
     }
+
     ack.acknowledge();
   }
 
@@ -143,8 +112,8 @@ public class TaxCalculationConsumer {
    */
   @Auditable(action = Action.TAX_BATCH_CONSUME)
   @KafkaListener(
-      topics = "${kafka.topics.tax.calculation.batch.name}",
-      groupId = "${kafka.groups.tax.calculation.batch.name}")
+      topics = "${kafka.topics.tax-calculation.batch.name}",
+      groupId = "${kafka.groups.tax-calculation.batch.name}")
   public void consumeBatch(ConsumerRecord<String, String> batch, Acknowledgment ack) {
     log.info(LogMessage.RECEIVED_BATCH, batch);
 
@@ -169,15 +138,16 @@ public class TaxCalculationConsumer {
     int numberMessageLeft;
     boolean hasMessageLeft;
 
-    Properties props = getProperties(count);
+    Properties props = getManualConsumerProperties(count);
 
     try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
-      consumer.subscribe(Collections.singleton(taxManualTopic));
+      String topic = kafkaProperties.getTopics().getTaxCalculation().getManual().getName();
+      consumer.subscribe(Collections.singleton(topic));
 
       // Wait for assignment
-      int retries = 0, maxRetries = 100;
-      ConsumerRecords<String, String> records = new ConsumerRecords<>(Collections.emptyMap());
-      while (consumer.assignment().isEmpty() && retries++ < maxRetries) {
+      int retries = 0;
+      ConsumerRecords<String, String> records = ConsumerRecords.empty();
+      while (consumer.assignment().isEmpty() && retries++ < 100) {
         records = consumer.poll(Duration.ofMillis(100));
       }
 
@@ -190,14 +160,14 @@ public class TaxCalculationConsumer {
       Map<TopicPartition, OffsetAndMetadata> committedOffsets = consumer.committed(partitions);
 
       for (TopicPartition partition : partitions) {
-        long logEnd = endOffsets.getOrDefault(partition, 0L);
-        OffsetAndMetadata committedMeta = committedOffsets.get(partition);
-        long committed = committedMeta != null ? committedMeta.offset() : 0L;
-        long lag = logEnd - committed;
-        totalLag += lag;
+        long end = endOffsets.getOrDefault(partition, 0L);
+        long committed =
+            Optional.ofNullable(committedOffsets.get(partition))
+                .map(OffsetAndMetadata::offset)
+                .orElse(0L);
+        totalLag += (end - committed);
       }
 
-      // Avoid double poll
       if (records.count() == 0) {
         records = consumer.poll(Duration.ofMillis(500));
       }
@@ -216,33 +186,29 @@ public class TaxCalculationConsumer {
           handleSendRetryEvent(record.value(), e);
         }
       }
+
       consumer.commitSync();
     }
 
     return new ManualConsumeTaxOutDTO(batch, numberMessageLeft, hasMessageLeft);
   }
 
-  private Properties getProperties(int count) {
+  private Properties getManualConsumerProperties(int count) {
+    KafkaProperties.Consumer consumerProps = kafkaProperties.getConsumer();
+    KafkaProperties.Groups.TaxCalculation groups = kafkaProperties.getGroups().getTaxCalculation();
+
     Properties props = new Properties();
-    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    props.put(ConsumerConfig.GROUP_ID_CONFIG, taxManualGroup);
-
-    // Deserialize as Strings
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer);
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer);
-
-    // Manual offset management
-    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, manualAutoCommit);
-
-    // Fetch at most {count} records per poll
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, groups.getManual().getName());
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, consumerProps.getKeyDeserializer());
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, consumerProps.getValueDeserializer());
+    props.put(
+        ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, groups.getManual().isEnableAutoCommitConfig());
+    props.put(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, groups.getManual().getAutoOffsetResetConfig());
+    props.put(
+        ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, groups.getManual().getSessionTimeoutMsConfig());
     props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, count);
-
-    // Required: start from beginning if no committed offset exists
-    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, manualAutoOffsetReset);
-
-    // For debug
-    props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, manualSessionTimeoutMs);
-
     return props;
   }
 
@@ -254,50 +220,43 @@ public class TaxCalculationConsumer {
   private void handleTaxCalculationEventBatch(String message) throws JsonProcessingException {
     List<TaxCalculationEvent> events =
         objectMapper.readValue(message, new TypeReference<List<TaxCalculationEvent>>() {});
-
-    events.forEach(
-        event -> {
-          try {
-            updateTaxCalculationEvent(event);
-          } catch (Exception e) {
-            try {
-              String json = objectMapper.writeValueAsString(event);
-              handleSendRetryEvent(json, e);
-            } catch (JsonProcessingException ex) {
-              throw new RuntimeException(ex);
-            }
-          }
-        });
+    for (TaxCalculationEvent event : events) {
+      try {
+        updateTaxCalculationEvent(event);
+      } catch (Exception e) {
+        handleSendRetryEvent(objectMapper.writeValueAsString(event), e);
+      }
+    }
   }
 
   private void updateTaxCalculationEvent(TaxCalculationEvent event) {
-    String taxId = event.getTaxId();
-    BigDecimal amount = event.getAmount();
-
     Person existing =
         repository
-            .findByTaxId(taxId)
+            .findByTaxId(event.getTaxId())
             .orElseThrow(
                 () ->
-                    new EntityNotFoundException(ErrorMessage.PERSON_NOT_FOUND_WITH_TAX_ID + taxId));
-
-    existing.setTaxDebt(existing.getTaxDebt().add(amount));
+                    new EntityNotFoundException(
+                        ErrorMessage.PERSON_NOT_FOUND_WITH_TAX_ID + event.getTaxId()));
+    existing.setTaxDebt(existing.getTaxDebt().add(event.getAmount()));
     repository.save(existing);
   }
 
   private void handleSendRetryEvent(String message, Exception e) {
     log.error(ErrorMessage.FAIL_PROCESS_KAFKA, message, e);
-    kafkaTemplate.send(taxRetryTopic, message);
-    log.info(LogMessage.SENT_TO_TOPIC, taxRetryTopic);
+    kafkaTemplate.send(
+        kafkaProperties.getTopics().getTaxCalculation().getRetry().getName(), message);
+    log.info(
+        LogMessage.SENT_TO_TOPIC,
+        kafkaProperties.getTopics().getTaxCalculation().getRetry().getName());
   }
 
   private int getRetryCount(ConsumerRecord<String, String> record) {
-    if (record.headers().lastHeader(retryHeader) != null) {
-      String value = new String(record.headers().lastHeader(retryHeader).value());
-      try {
-        return Integer.parseInt(value);
-      } catch (NumberFormatException ignored) {
+    String retryHeader = kafkaProperties.getTopics().getTaxCalculation().getRetry().getHeader();
+    try {
+      if (record.headers().lastHeader(retryHeader) != null) {
+        return Integer.parseInt(new String(record.headers().lastHeader(retryHeader).value()));
       }
+    } catch (NumberFormatException ignored) {
     }
     return 0;
   }
