@@ -1,0 +1,80 @@
+server:
+  port: 0  # Let Spring Boot choose a random port during tests
+
+spring:
+  application:
+    name: person-service
+
+  datasource:
+    # If using Testcontainers with @DynamicPropertySource, this is overridden anyway
+    url: jdbc:tc:postgresql:16:///testdb
+    username: test
+    password: test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/test-db.changelog-master.yaml
+
+  kafka:
+    bootstrap-servers: dummy:9092  # Prevent real Kafka usage
+    consumer:
+      properties:
+        spring.json.trusted.packages: "*"
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+logging:
+  level:
+    root: INFO
+    org.springframework.kafka: OFF
+    org.hibernate.SQL: DEBUG
+
+kafka:
+  topics:
+    person:
+      events:
+        name: person.events.test
+    tax:
+      calculation:
+        single:
+          name: tax.calculation.test
+        retry:
+          name: tax.calculation-retry.test
+          header: retry-count
+          max-retries: 1
+        dlt:
+          name: tax.calculation-dlt.test
+        batch:
+          name: tax.calculation-batch.test
+        manual:
+          name: tax.calculation-manual-consume.test
+          partitions: 1
+
+  groups:
+    person:
+      events:
+        name: person-group-test
+    tax:
+      calculation:
+        single:
+          name: tax-single-test
+        batch:
+          name: tax-batch-test
+        manual:
+          name: tax-manual-test
+          enable-auto-commit-config: false
+          auto-offset-reset-config: earliest
+          session-timeout-ms-config: 300000
