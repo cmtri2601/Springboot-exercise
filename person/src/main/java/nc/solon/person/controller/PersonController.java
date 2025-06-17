@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 /** The type Person controller. */
 @RestController
-@RequestMapping("/api/v1/persons")
+@RequestMapping("/persons")
 @RequiredArgsConstructor
 public class PersonController {
 

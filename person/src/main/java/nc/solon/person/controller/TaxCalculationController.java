@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 /** The type Tax calculation controller. */
 @RestController
-@RequestMapping("/api/v1/tax-calculation")
+@RequestMapping("/tax-calculation")
 @RequiredArgsConstructor
 public class TaxCalculationController {
   private final TaxService taxService;

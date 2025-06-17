@@ -3,7 +3,7 @@ package nc.solon.person.kafka;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import nc.solon.person.property.KafkaProperties;
+import nc.solon.person.config.KafkaProperties;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

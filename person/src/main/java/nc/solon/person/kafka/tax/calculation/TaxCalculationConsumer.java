@@ -10,13 +10,14 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nc.solon.person.audit.Auditable;
+import nc.solon.person.config.KafkaProperties;
 import nc.solon.person.constant.Action;
 import nc.solon.person.constant.ErrorMessage;
+import nc.solon.person.constant.Kafka;
 import nc.solon.person.constant.LogMessage;
 import nc.solon.person.dto.ManualConsumeTaxOutDTO;
 import nc.solon.person.entity.Person;
 import nc.solon.person.event.TaxCalculationEvent;
-import nc.solon.person.property.KafkaProperties;
 import nc.solon.person.repository.PersonRepository;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -147,8 +148,8 @@ public class TaxCalculationConsumer {
       // Wait for assignment
       int retries = 0;
       ConsumerRecords<String, String> records = ConsumerRecords.empty();
-      while (consumer.assignment().isEmpty() && retries++ < 100) {
-        records = consumer.poll(Duration.ofMillis(100));
+      while (consumer.assignment().isEmpty() && retries++ < Kafka.MAX_RETRIES_ASSIGNMENT) {
+        records = consumer.poll(Duration.ofMillis(Kafka.POLL_DURATION));
       }
 
       if (consumer.assignment().isEmpty()) {
@@ -169,7 +170,7 @@ public class TaxCalculationConsumer {
       }
 
       if (records.count() == 0) {
-        records = consumer.poll(Duration.ofMillis(500));
+        records = consumer.poll(Duration.ofMillis(Kafka.POLL_DURATION));
       }
 
       int totalRecords = records.count();

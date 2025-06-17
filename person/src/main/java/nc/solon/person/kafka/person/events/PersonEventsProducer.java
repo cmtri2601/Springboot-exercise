@@ -2,9 +2,9 @@ package nc.solon.person.kafka.person.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import nc.solon.person.config.KafkaProperties;
 import nc.solon.person.constant.ErrorMessage;
 import nc.solon.person.event.PersonEvent;
-import nc.solon.person.property.KafkaProperties;
 import nc.solon.person.utils.ErrorHandler;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

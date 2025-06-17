@@ -1,4 +1,4 @@
-package nc.solon.person.property;
+package nc.solon.person.config;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

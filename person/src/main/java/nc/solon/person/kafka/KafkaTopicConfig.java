@@ -1,7 +1,7 @@
 package nc.solon.person.kafka;
 
 import lombok.RequiredArgsConstructor;
-import nc.solon.person.property.KafkaProperties;
+import nc.solon.person.config.KafkaProperties;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

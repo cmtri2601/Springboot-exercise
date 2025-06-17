@@ -1,5 +1,6 @@
 server:
   port: 8080
+  prefix: /api/v1
 
 spring:
   application:
