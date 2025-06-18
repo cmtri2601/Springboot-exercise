@@ -1,4 +1,4 @@
-package nc.solon.person.service;
+package nc.solon.person.ut.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -12,6 +12,7 @@ import nc.solon.person.dto.TaxInDTO;
 import nc.solon.person.event.TaxCalculationEvent;
 import nc.solon.person.kafka.tax.calculation.TaxCalculationConsumer;
 import nc.solon.person.kafka.tax.calculation.TaxCalculationProducer;
+import nc.solon.person.service.TaxService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +41,7 @@ class TaxServiceUnitTest {
   private ManualConsumeTaxOutDTO manualConsumeTaxOutDTO;
 
   /** Sets up. */
-  @BeforeEach
+@BeforeEach
   void setUp() {
     // Setup test data
     taxInDTO = new TaxInDTO();
@@ -59,7 +60,7 @@ class TaxServiceUnitTest {
   }
 
   /** Calculate tax should send event to producer. */
-  @Test
+@Test
   void calculateTax_shouldSendEventToProducer() {
     // When
     taxService.calculateTax(taxInDTO);
@@ -72,7 +73,7 @@ class TaxServiceUnitTest {
   }
 
   /** Calculate tax batch should send batch events to producer. */
-  @Test
+@Test
   void calculateTaxBatch_shouldSendBatchEventsToProducer() {
     // When
     taxService.calculateTaxBatch(taxBatch);
@@ -89,7 +90,7 @@ class TaxServiceUnitTest {
   }
 
   /** Produce manual should send manual events to producer. */
-  @Test
+@Test
   void produceManual_shouldSendManualEventsToProducer() {
     // When
     taxService.produceManual(taxBatch);

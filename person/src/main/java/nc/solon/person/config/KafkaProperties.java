@@ -14,7 +14,7 @@ import org.springframework.validation.annotation.Validated;
 @Setter
 @Validated
 @Configuration
-@ConfigurationProperties(prefix = "kafka")
+@ConfigurationProperties(prefix = "spring.kafka")
 public class KafkaProperties {
 
   @NotBlank private String bootstrapServers;

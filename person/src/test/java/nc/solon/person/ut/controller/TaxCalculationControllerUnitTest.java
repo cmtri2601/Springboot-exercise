@@ -1,4 +1,4 @@
-package nc.solon.person.controller;
+package nc.solon.person.ut.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import nc.solon.person.controller.TaxCalculationController;
 import nc.solon.person.dto.TaxBatchInDTO;
 import nc.solon.person.dto.TaxInDTO;
 import nc.solon.person.service.TaxService;
@@ -35,7 +36,7 @@ class TaxCalculationControllerUnitTest {
   private TaxBatchInDTO validBatchInDTO;
 
   /** Sets up. */
-  @BeforeEach
+@BeforeEach
   void setUp() {
     mockMvc = MockMvcBuilders.standaloneSetup(taxCalculationController).build();
     objectMapper = new ObjectMapper();
@@ -49,7 +50,7 @@ class TaxCalculationControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void calculateTax_withValidInput_shouldReturnOk() throws Exception {
     // Given
     BigDecimal calculatedTax = new BigDecimal("20.00");
@@ -69,7 +70,7 @@ class TaxCalculationControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void calculateTax_withInvalidTaxId_shouldReturnBadRequest() throws Exception {
     TaxInDTO invalidDTO = new TaxInDTO("", new BigDecimal("100.00"));
 
@@ -86,7 +87,7 @@ class TaxCalculationControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void calculateTax_withTooLongTaxId_shouldReturnBadRequest() throws Exception {
     TaxInDTO invalidDTO = new TaxInDTO("12345678901", new BigDecimal("100.00"));
 
@@ -103,7 +104,7 @@ class TaxCalculationControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void calculateTax_withNullAmount_shouldReturnBadRequest() throws Exception {
     TaxInDTO invalidDTO = new TaxInDTO("TAX123", null);
 
@@ -120,7 +121,7 @@ class TaxCalculationControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void calculateTax_withNegativeAmount_shouldReturnBadRequest() throws Exception {
     TaxInDTO invalidDTO = new TaxInDTO("TAX123456789", new BigDecimal("-50.00"));
 
@@ -137,7 +138,7 @@ class TaxCalculationControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void calculateBatchTax_withValidInput_shouldReturnOk() throws Exception {
     // When & Then
     mockMvc
@@ -153,7 +154,7 @@ class TaxCalculationControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void calculateBatchTax_withLargeBatch_shouldReturnOk() throws Exception {
     // Given
     List<TaxInDTO> taxBatch = new ArrayList<>();
@@ -183,7 +184,7 @@ class TaxCalculationControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void calculateBatchManual_withValidInput_shouldReturnOk() throws Exception {
     // When & Then
     mockMvc

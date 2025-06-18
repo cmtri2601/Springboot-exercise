@@ -1,24 +1,43 @@
-package nc.solon.person.controller;
+package nc.solon.person.it.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import nc.solon.person.config.AbstractIntegrationTest;
 import nc.solon.person.dto.ManualConsumeTaxOutDTO;
 import nc.solon.person.dto.TaxBatchInDTO;
 import nc.solon.person.dto.TaxInDTO;
+import nc.solon.person.it.config.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.kafka.KafkaContainer;
+import org.testcontainers.utility.DockerImageName;
 
 /** The type Tax calculation controller integration test. */
 public class TaxCalculationControllerIntegrationTest extends AbstractIntegrationTest {
   @Autowired private TestRestTemplate restTemplate;
+
+  /** The constant KAFKA. */
+  @Container
+  static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka"));
+
+  /**
+   * Register properties.
+   *
+   * @param registry the registry
+   */
+@DynamicPropertySource
+  static void registerProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.kafka.bootstrap-servers", KAFKA::getBootstrapServers);
+  }
 
   @Value("${server.prefix}")
   private String prefix;
@@ -26,13 +45,13 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
   private String url;
 
   /** Sets up. */
-  @BeforeEach
+@BeforeEach
   public void setUp() {
     url = prefix + "/tax-calculation";
   }
 
   /** Test calculate tax. */
-  @Test
+@Test
   void testCalculateTax() {
     TaxInDTO taxInDTO = new TaxInDTO("TAX000001", new BigDecimal(10));
 
@@ -46,7 +65,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
   }
 
   /** Test calculate tax invalid input. */
-  @Test
+@Test
   void testCalculateTax_InvalidInput() {
     TaxInDTO taxInDTO = new TaxInDTO("TAX00000000000000001", new BigDecimal("-10.00"));
 
@@ -60,12 +79,13 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
   }
 
   /** Test calculate tax batch. */
-  @Test
+@Test
   void testCalculateTaxBatch() {
     List<TaxInDTO> batch =
         Arrays.asList(
             new TaxInDTO("TAX000001", new BigDecimal(10)),
-            new TaxInDTO("TAX000002", new BigDecimal(10)));
+            new TaxInDTO("TAX000002", new BigDecimal(10)),
+            new TaxInDTO("BLOCK", new BigDecimal(10)));
     TaxBatchInDTO batchDto = new TaxBatchInDTO(batch);
 
     HttpHeaders headers = new HttpHeaders();
@@ -78,7 +98,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
   }
 
   /** Test calculate tax batch invalid input. */
-  @Test
+@Test
   void testCalculateTaxBatch_InvalidInput() {
     List<TaxInDTO> batch =
         Arrays.asList(
@@ -97,7 +117,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
   }
 
   /** Test produce manual. */
-  @Test
+@Test
   void testProduceManual() {
     List<TaxInDTO> batch =
         Arrays.asList(
@@ -116,7 +136,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
   }
 
   /** Test consume manual. */
-  @Test
+@Test
   void testConsumeManual() {
     // First produce some tax calculations to consume
     List<TaxInDTO> batch =
@@ -140,7 +160,7 @@ public class TaxCalculationControllerIntegrationTest extends AbstractIntegration
   }
 
   /** Test consume manual default count. */
-  @Test
+@Test
   void testConsumeManual_DefaultCount() {
     // Test the default count parameter
     ResponseEntity<ManualConsumeTaxOutDTO> response =

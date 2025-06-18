@@ -46,8 +46,8 @@ public class TaxCalculationConsumer {
    */
   @Auditable(action = Action.TAX_CONSUME)
   @KafkaListener(
-      topics = "${kafka.topics.tax-calculation.single.name}",
-      groupId = "${kafka.groups.tax-calculation.single.name}")
+      topics = "${spring.kafka.topics.tax-calculation.single.name}",
+      groupId = "${spring.kafka.groups.tax-calculation.single.name}")
   public void consume(String message, Acknowledgment ack) {
     try {
       handleTaxCalculationEvent(message);
@@ -65,8 +65,8 @@ public class TaxCalculationConsumer {
    */
   @Auditable(action = Action.TAX_RETRY_CONSUME)
   @KafkaListener(
-      topics = "${kafka.topics.tax-calculation.retry.name}",
-      groupId = "${kafka.groups.tax-calculation.single.name}")
+      topics = "${spring.kafka.topics.tax-calculation.retry.name}",
+      groupId = "${spring.kafka.groups.tax-calculation.single.name}")
   public void retryConsume(ConsumerRecord<String, String> record, Acknowledgment ack) {
     String message = record.value();
     int retryCount = getRetryCount(record);
@@ -113,8 +113,8 @@ public class TaxCalculationConsumer {
    */
   @Auditable(action = Action.TAX_BATCH_CONSUME)
   @KafkaListener(
-      topics = "${kafka.topics.tax-calculation.batch.name}",
-      groupId = "${kafka.groups.tax-calculation.batch.name}")
+      topics = "${spring.kafka.topics.tax-calculation.batch.name}",
+      groupId = "${spring.kafka.groups.tax-calculation.batch.name}")
   public void consumeBatch(ConsumerRecord<String, String> batch, Acknowledgment ack) {
     log.info(LogMessage.RECEIVED_BATCH, batch);
 

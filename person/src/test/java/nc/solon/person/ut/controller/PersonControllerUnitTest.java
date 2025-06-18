@@ -1,4 +1,4 @@
-package nc.solon.person.controller;
+package nc.solon.person.ut.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import nc.solon.person.controller.PersonController;
 import nc.solon.person.dto.PersonInDTO;
 import nc.solon.person.dto.PersonOutDTO;
 import nc.solon.person.service.PersonService;
@@ -39,7 +40,7 @@ class PersonControllerUnitTest {
   private ObjectMapper objectMapper;
 
   /** Sets up. */
-  @BeforeEach
+@BeforeEach
   void setUp() {
     mockMvc = MockMvcBuilders.standaloneSetup(personController).build();
     objectMapper = new ObjectMapper();
@@ -51,7 +52,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void getAllPersons_ShouldReturnListOfPersons() throws Exception {
     // Given
     List<PersonOutDTO> persons =
@@ -78,7 +79,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void getPersonById_WithExistingId_ShouldReturnPerson() throws Exception {
     // Given
     PersonOutDTO person = new PersonOutDTO(1L, "John", "Doe", 25, "123456789", new BigDecimal(33));
@@ -100,7 +101,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void getPersonById_WithNonExistingId_ShouldReturn404() throws Exception {
     // Given
     when(personService.getPersonById(999L)).thenReturn(Optional.empty());
@@ -116,7 +117,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void createPerson_WithValidData_ShouldReturnAccepted() throws Exception {
     // Given
     PersonInDTO personIn =
@@ -138,7 +139,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void createPerson_WithInvalidData_ShouldReturnBadRequest() throws Exception {
     // Given
     PersonInDTO invalidPerson = new PersonInDTO("", "", null, new BigDecimal("-100.00"));
@@ -159,7 +160,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void updatePerson_WithValidData_ShouldReturnAccepted() throws Exception {
     // Given
     PersonInDTO updateDto =
@@ -181,7 +182,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void deletePerson_ShouldCallServiceAndReturnNoContent() throws Exception {
     // When/Then
     mockMvc.perform(delete("/persons/1")).andExpect(status().isAccepted());
@@ -194,7 +195,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void getPersonByTaxId_WithExistingTaxId_ShouldReturnPerson() throws Exception {
     // Given
     PersonOutDTO person = new PersonOutDTO(1L, "John", "Doe", 25, "TID12345", new BigDecimal(33));
@@ -214,7 +215,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void getPersonByTaxId_WithNonExistingTaxId_ShouldReturn404() throws Exception {
     // Given
     when(personService.getPersonByTaxId("INVALID")).thenReturn(Optional.empty());
@@ -230,7 +231,7 @@ class PersonControllerUnitTest {
    *
    * @throws Exception the exception
    */
-  @Test
+@Test
   void findByNamePrefixAndMinAge_ShouldReturnMatchingPersons() throws Exception {
     // Given
     List<PersonOutDTO> persons =

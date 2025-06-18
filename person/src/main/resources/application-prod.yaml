@@ -27,63 +27,52 @@ spring:
 
   kafka:
     bootstrap-servers: kafka:9092
+
     consumer:
-      properties:
-        spring.json.trusted.packages: "*"
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    topics:
+      person-events:
+        name: person.events
+        fixed-backoff:
+          interval: 0
+          max-attempts: 3
+      tax-calculation:
+        single:
+          name: tax.calculation
+        retry:
+          name: tax.calculation-retry
+          header: retry-count
+          max-retries: 3
+        dlt:
+          name: tax.calculation-dlt
+        batch:
+          name: tax.calculation-batch
+        manual:
+          name: tax.calculation-manual-consume
+          partitions: 3
+
+    groups:
+      person-events:
+        name: person-group
+      tax-calculation:
+        single:
+          name: tax-single
+        batch:
+          name: tax-batch
+        manual:
+          name: tax-manual
+          enable-auto-commit-config: false
+          auto-offset-reset-config: earliest
+          session-timeout-ms-config: 300000
 
 logging:
   level:
     root: ERROR
     org.springframework.kafka: ERROR
     org.hibernate.SQL: ERROR
-
-kafka:
-  bootstrap-servers: kafka:9092
-
-  consumer:
-    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-
-  producer:
-    key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-  topics:
-    person-events:
-      name: person.events
-      fixed-backoff:
-        interval: 0
-        max-attempts: 3
-    tax-calculation:
-      single:
-        name: tax.calculation
-      retry:
-        name: tax.calculation-retry
-        header: retry-count
-        max-retries: 3
-      dlt:
-        name: tax.calculation-dlt
-      batch:
-        name: tax.calculation-batch
-      manual:
-        name: tax.calculation-manual-consume
-        partitions: 3
-
-  groups:
-    person-events:
-      name: person-group
-    tax-calculation:
-      single:
-        name: tax-single
-      batch:
-        name: tax-batch
-      manual:
-        name: tax-manual
-        enable-auto-commit-config: false
-        auto-offset-reset-config: earliest
-        session-timeout-ms-config: 300000

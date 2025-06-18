@@ -1,4 +1,4 @@
-package nc.solon.person.service;
+package nc.solon.person.ut.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +16,7 @@ import nc.solon.person.entity.Person;
 import nc.solon.person.event.PersonEvent;
 import nc.solon.person.kafka.person.events.PersonEventsProducer;
 import nc.solon.person.repository.PersonRepository;
+import nc.solon.person.service.PersonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,7 @@ class PersonServiceUnitTest {
   private PersonOutDTO personOutDTO;
 
   /** Sets up. */
-  @BeforeEach
+@BeforeEach
   void setUp() {
     // Create sample data for tests
     personInDTO =

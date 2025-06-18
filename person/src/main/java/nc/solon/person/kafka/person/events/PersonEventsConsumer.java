@@ -35,8 +35,8 @@ public class PersonEventsConsumer {
    */
   @Auditable(action = Action.PERSON_CONSUME)
   @KafkaListener(
-      topics = "${kafka.topics.person-events.name}",
-      groupId = "${kafka.groups.person-events.name}")
+      topics = "${spring.kafka.topics.person-events.name}",
+      groupId = "${spring.kafka.groups.person-events.name}")
   public void consume(String message, Acknowledgment ack) {
     try {
       PersonEvent event = objectMapper.readValue(message, PersonEvent.class);
