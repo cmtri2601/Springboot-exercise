@@ -31,7 +31,7 @@ services:
     ports:
       - "9092:9092"
     volumes:
-      - ./log4j.properties:/opt/bitnami/kafka/config/log4j.properties
+      - .config/log4j.properties:/opt/bitnami/kafka/config/log4j.properties
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
