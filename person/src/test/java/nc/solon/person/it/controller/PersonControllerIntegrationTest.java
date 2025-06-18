@@ -25,35 +25,35 @@ import org.testcontainers.utility.DockerImageName;
 /** The type Person controller integration test. */
 public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
 
-  @Autowired private TestRestTemplate restTemplate;
-
   /** The constant KAFKA. */
   @Container
   static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka"));
 
-  /**
-   * Register properties.
-   *
-   * @param registry the registry
-   */
-@DynamicPropertySource
-  static void registerProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.kafka.bootstrap-servers", KAFKA::getBootstrapServers);
-  }
+  @Autowired private TestRestTemplate restTemplate;
 
   @Value("${server.prefix}")
   private String prefix;
 
   private String url;
 
+  /**
+   * Register properties.
+   *
+   * @param registry the registry
+   */
+  @DynamicPropertySource
+  static void registerProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.kafka.bootstrap-servers", KAFKA::getBootstrapServers);
+  }
+
   /** Sets up. */
-@BeforeEach
+  @BeforeEach
   public void setUp() {
     url = prefix + "/persons";
   }
 
   /** Test get all persons. */
-@Test
+  @Test
   void testGetAllPersons() {
     ResponseEntity<PersonOutDTO[]> response = restTemplate.getForEntity(url, PersonOutDTO[].class);
 
@@ -62,7 +62,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test get person by id. */
-@Test
+  @Test
   void testGetPersonById() {
     ResponseEntity<PersonOutDTO> response =
         restTemplate.getForEntity(url + "/1", PersonOutDTO.class);
@@ -73,7 +73,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test get person by id not found. */
-@Test
+  @Test
   void testGetPersonById_NotFound() {
     ResponseEntity<String> response = restTemplate.getForEntity(url + "/999", String.class);
 
@@ -81,7 +81,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test create person. */
-@Test
+  @Test
   void testCreatePerson() {
     PersonInDTO personIn =
         new PersonInDTO("Test", "User", LocalDate.of(1990, 5, 15), new BigDecimal("4500.00"));
@@ -109,7 +109,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test update person. */
-@Test
+  @Test
   void testUpdatePerson() {
     PersonInDTO updateData =
         new PersonInDTO("Updated", "Person", LocalDate.of(1995, 10, 20), new BigDecimal("5500.00"));
@@ -138,7 +138,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test delete person. */
-@Test
+  @Test
   void testDeletePerson() {
     // First verify the person exists
     ResponseEntity<PersonOutDTO> getResponse =
@@ -160,7 +160,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test find by name prefix and min age case insensitive. */
-@Test
+  @Test
   void testFindByNamePrefixAndMinAge_CaseInsensitive() {
     ResponseEntity<PersonOutDTO[]> response =
         restTemplate.getForEntity(url + "/search?prefix=mi&age=30", PersonOutDTO[].class);
@@ -179,7 +179,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test get by tax id not found. */
-@Test
+  @Test
   void testGetByTaxId_NotFound() {
     ResponseEntity<String> response =
         restTemplate.getForEntity(url + "/tax-id/invalid-format", String.class);
@@ -189,7 +189,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test find by name prefix and min age empty prefix. */
-@Test
+  @Test
   void testFindByNamePrefixAndMinAge_EmptyPrefix() {
     ResponseEntity<PersonOutDTO[]> response =
         restTemplate.getForEntity(url + "/search?prefix=&age=20", PersonOutDTO[].class);
@@ -204,7 +204,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test create person negative tax. */
-@Test
+  @Test
   void testCreatePerson_NegativeTax() {
     PersonInDTO personIn =
         new PersonInDTO("Test", "User", LocalDate.of(1990, 5, 15), new BigDecimal("-4500.00"));
@@ -220,7 +220,7 @@ public class PersonControllerIntegrationTest extends AbstractIntegrationTest {
   }
 
   /** Test invalid input bad request. */
-@Test
+  @Test
   void testInvalidInput_BadRequest() {
     PersonInDTO invalidPerson = new PersonInDTO("", "", null, new BigDecimal("-100.00"));
 

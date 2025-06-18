@@ -34,7 +34,7 @@ class PersonRepositoryIntegrationTest {
   @Autowired private PersonRepository personRepository;
 
   /** Find by name prefix and older than should return matching persons. */
-@Test
+  @Test
   void findByNamePrefixAndOlderThan_shouldReturnMatchingPersons() {
     // Arrange
     String namePrefix = "Mi";
@@ -52,7 +52,7 @@ class PersonRepositoryIntegrationTest {
   }
 
   /** Find by name prefix and older than with last name prefix should return matching persons. */
-@Test
+  @Test
   void findByNamePrefixAndOlderThan_withLastNamePrefix_shouldReturnMatchingPersons() {
     // Arrange
     String namePrefix = "Mi";
@@ -80,7 +80,7 @@ class PersonRepositoryIntegrationTest {
   }
 
   /** Find by name prefix and older than with no matches should return empty list. */
-@Test
+  @Test
   void findByNamePrefixAndOlderThan_withNoMatches_shouldReturnEmptyList() {
     // Arrange
     String namePrefix = "Xyz";
@@ -94,7 +94,7 @@ class PersonRepositoryIntegrationTest {
   }
 
   /** Find by name prefix and older than is case insensitive. */
-@Test
+  @Test
   void findByNamePrefixAndOlderThan_isCaseInsensitive() {
     // Arrange
     String namePrefix = "mi"; // lowercase

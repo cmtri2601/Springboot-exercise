@@ -41,7 +41,7 @@ class TaxServiceUnitTest {
   private ManualConsumeTaxOutDTO manualConsumeTaxOutDTO;
 
   /** Sets up. */
-@BeforeEach
+  @BeforeEach
   void setUp() {
     // Setup test data
     taxInDTO = new TaxInDTO();
@@ -60,7 +60,7 @@ class TaxServiceUnitTest {
   }
 
   /** Calculate tax should send event to producer. */
-@Test
+  @Test
   void calculateTax_shouldSendEventToProducer() {
     // When
     taxService.calculateTax(taxInDTO);
@@ -73,7 +73,7 @@ class TaxServiceUnitTest {
   }
 
   /** Calculate tax batch should send batch events to producer. */
-@Test
+  @Test
   void calculateTaxBatch_shouldSendBatchEventsToProducer() {
     // When
     taxService.calculateTaxBatch(taxBatch);
@@ -90,7 +90,7 @@ class TaxServiceUnitTest {
   }
 
   /** Produce manual should send manual events to producer. */
-@Test
+  @Test
   void produceManual_shouldSendManualEventsToProducer() {
     // When
     taxService.produceManual(taxBatch);

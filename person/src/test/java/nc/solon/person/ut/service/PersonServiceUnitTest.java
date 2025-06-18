@@ -40,7 +40,7 @@ class PersonServiceUnitTest {
   private PersonOutDTO personOutDTO;
 
   /** Sets up. */
-@BeforeEach
+  @BeforeEach
   void setUp() {
     // Create sample data for tests
     personInDTO =
