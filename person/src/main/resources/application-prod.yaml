@@ -27,15 +27,6 @@ spring:
 
   kafka:
     bootstrap-servers: kafka:9092
-
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
     topics:
       person-events:
         name: person.events
@@ -56,7 +47,6 @@ spring:
         manual:
           name: tax.calculation-manual-consume
           partitions: 3
-
     groups:
       person-events:
         name: person-group
@@ -70,6 +60,13 @@ spring:
           enable-auto-commit-config: false
           auto-offset-reset-config: earliest
           session-timeout-ms-config: 300000
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 
 logging:
   level:
