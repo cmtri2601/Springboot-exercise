@@ -1,4 +1,4 @@
-package nc.solon.camunda;
+package nc.solon.camunda.service;
 
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.client.api.worker.JobClient;
@@ -12,23 +12,21 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ExampleJobWorkers {
+public class CamundaService {
 
     @JobWorker(type = "foo", autoComplete = true) // autoComplete = true as default value
     public void handleFooJob(final ActivatedJob job) {
         logJob(job, "hello foo");
-   }
+    }
 
     @JobWorker(type = "bar", autoComplete = true) // autoComplete = true as default value
     public void handleBarJob(final ActivatedJob job) {
         logJob(job, "hello bar");
     }
 
-    @JobWorker(type = "fail", fetchAllVariables = true)
-    public void handleFailingJob(
-            final JobClient client, final ActivatedJob job, @Variable String someResult) {
-        logJob(job, someResult);
-        throw new ZeebeBpmnError("DOESNT_WORK", "This will actually never work :-)");
+    @JobWorker(type = "create-person", autoComplete = true) // autoComplete = true as default value
+    public void handleCreatePersonJob(final ActivatedJob job) {
+        logJob(job, "hello bar");
     }
 
     private static void logJob(final ActivatedJob job, Object parameterValue) {

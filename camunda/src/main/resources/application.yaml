@@ -1,3 +1,6 @@
+server:
+  port: 3000
+
 spring:
   application:
     name: camunda
@@ -13,7 +16,7 @@ camunda:
       base-url: http://localhost:26500
     operate:
       enabled: true
-      base-url: http://localhost:8081
+      base-url: http://localhost:8083
     tasklist:
       enabled: true
       base-url: http://localhost:8082
@@ -30,6 +33,5 @@ camunda:
 #      poll-interval: 100
 #      timeout: 10
 #
-
 
 
