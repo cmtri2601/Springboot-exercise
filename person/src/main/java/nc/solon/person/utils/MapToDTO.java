@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class MapToDTO {
 
   /**
-   * Person person out dto.
+   * Person out dto.
    *
    * @param person the person
    * @return the person out dto

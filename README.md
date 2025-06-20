@@ -29,7 +29,7 @@ project/
 
 ## Technologies
 
-- Java 17
+- Java 21
 - Spring Boot 3.5.0
 - Spring Data JPA
 - PostgreSQL
