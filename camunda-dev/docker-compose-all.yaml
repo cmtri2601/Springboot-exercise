@@ -8,12 +8,12 @@
 
 # This is a lightweight configuration with Zeebe, Operate, Tasklist, and Elasticsearch
 # See docker-compose.yml for a configuration that also includes Optimize, Identity, and Keycloak.
-
+name: camunda-platform-all
 services:
 
   zeebe: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#zeebe
     image: camunda/zeebe:${CAMUNDA_PLATFORM_VERSION}
-    container_name: zeebe
+    container_name: zeebe-camunda-all
     ports:
       - "26500:26500"
       - "9600:9600"
@@ -43,7 +43,7 @@ services:
 
   operate: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#operate
     image: camunda/operate:${CAMUNDA_OPERATE_VERSION}
-    container_name: operate
+    container_name: operate-camunda-all
     ports:
       - "8083:8080"
     environment: # https://docs.camunda.io/docs/self-managed/operate-deployment/configuration/
@@ -67,7 +67,7 @@ services:
 
   tasklist: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#tasklist
     image: camunda/tasklist:${CAMUNDA_TASKLIST_VERSION}
-    container_name: tasklist
+    container_name: tasklist-camunda-all
     ports:
       - "8082:8080"
     environment: # https://docs.camunda.io/docs/self-managed/tasklist-deployment/configuration/
@@ -92,7 +92,7 @@ services:
 
   connectors: # https://docs.camunda.io/docs/components/integration-framework/connectors/out-of-the-box-connectors/available-connectors-overview/
     image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION}
-    container_name: connectors
+    container_name: connectors-camunda-all
     ports:
       - "8085:8080"
     environment:
@@ -118,7 +118,7 @@ services:
 
   elasticsearch: # https://hub.docker.com/_/elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
-    container_name: elasticsearch
+    container_name: elasticsearch-camunda-all
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -144,9 +144,88 @@ services:
     networks:
       - camunda-platform
 
+  # ------------------------------------------------------------------
+  postgres:
+    image: postgres:16
+    container_name: postgres-camunda-all
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - camunda-platform
+
+  kafka:
+    image: bitnami/kafka:3.9
+    container_name: kafka-camunda-all
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_KRAFT_CLUSTER_ID: abcdefghijklmnopqrstuv
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_LOG4J_LOGGERS: kafka.controller=ERROR,kafka.producer.async.DefaultEventHandler=ERROR,state.change.logger=ERROR
+    ports:
+      - "9092:9092"
+    volumes:
+      - ../log4j.properties:/opt/bitnami/kafka/config/log4j.properties
+    networks:
+      - camunda-platform
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui-camunda-all
+    depends_on:
+      - kafka
+    ports:
+      - "8000:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: solon
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      LOGGING_LEVEL_ROOT: ERROR
+      LOGGING_LEVEL_COM_PROVECTUS: ERROR
+    networks:
+      - camunda-platform
+
+  person-service:
+    build:
+      context: ../person
+      dockerfile: Dockerfile
+    container_name: person-service-camunda-all
+    depends_on:
+      - postgres
+      - kafka
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - camunda-platform
+
+  cron-service:
+    build:
+      context: ../cron
+      dockerfile: Dockerfile
+    container_name: cron-service-camunda-all
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    networks:
+      - camunda-platform
 volumes:
   zeebe:
   elastic:
+  postgres_data:
 
 networks:
   camunda-platform:
