@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import nc.solon.camunda.service.PersonService;
 import nc.solon.common.dto.PersonInDTO;
 import nc.solon.common.dto.PersonOutDTO;
+import nc.solon.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +24,9 @@ public class PersonController {
    * @return the response entity
    */
   @PostMapping()
-  public ResponseEntity<PersonOutDTO> createPersonSync(
+  public ResponseEntity<ApiResponse<PersonOutDTO>> createPersonSync(
       @Valid @RequestBody PersonInDTO personInDTO) {
     PersonOutDTO personOutDTO = personService.createPerson(personInDTO);
-    return ResponseEntity.ok(personOutDTO);
+    return ApiResponse.responseSuccess(personOutDTO);
   }
 }
