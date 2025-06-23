@@ -1,4 +1,4 @@
-package nc.solon.person.constant;
+package nc.solon.common.constant;
 
 /** The type Kafka. */
 public class Kafka {

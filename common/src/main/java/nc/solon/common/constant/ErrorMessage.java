@@ -1,4 +1,4 @@
-package nc.solon.person.constant;
+package nc.solon.common.constant;
 
 /** The type Error message. */
 public class ErrorMessage {

@@ -1,4 +1,4 @@
-package nc.solon.person.audit;
+package nc.solon.common.audit;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

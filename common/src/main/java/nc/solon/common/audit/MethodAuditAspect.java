@@ -1,8 +1,8 @@
-package nc.solon.person.audit;
+package nc.solon.common.audit;
 
 import lombok.extern.slf4j.Slf4j;
-import nc.solon.person.constant.LogMessage;
-import nc.solon.person.utils.Serialize;
+import nc.solon.common.constant.LogMessage;
+import nc.solon.common.utils.Serialize;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
