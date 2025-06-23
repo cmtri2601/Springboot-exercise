@@ -176,8 +176,6 @@ services:
       KAFKA_LOG4J_LOGGERS: kafka.controller=ERROR,kafka.producer.async.DefaultEventHandler=ERROR,state.change.logger=ERROR
     ports:
       - "9092:9092"
-    volumes:
-      - ../log4j.properties:/opt/bitnami/kafka/config/log4j.properties
     networks:
       - camunda-platform
 
@@ -198,7 +196,7 @@ services:
 
   person-service:
     build:
-      context: ../person
+      context: ../01-person-service
       dockerfile: Dockerfile
     container_name: person-service-camunda-all
     depends_on:
@@ -213,7 +211,7 @@ services:
 
   cron-service:
     build:
-      context: ../cron
+      context: ../02-cron-service
       dockerfile: Dockerfile
     container_name: cron-service-camunda-all
     ports:

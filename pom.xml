@@ -5,8 +5,9 @@
   <version>1.0.0</version>
   <packaging>pom</packaging>
   <modules>
-    <module>common</module>
-    <module>person</module>
-    <module>camunda</module>
+    <module>00-common</module>
+    <module>01-person-service</module>
+    <module>02-cron-service</module>
+    <module>03-camunda-service</module>
   </modules>
 </project>

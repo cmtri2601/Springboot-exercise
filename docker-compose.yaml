@@ -30,8 +30,6 @@ services:
       KAFKA_LOG4J_LOGGERS: kafka.controller=ERROR,kafka.producer.async.DefaultEventHandler=ERROR,state.change.logger=ERROR
     ports:
       - "9092:9092"
-    volumes:
-      - .config/log4j.properties:/opt/bitnami/kafka/config/log4j.properties
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -48,7 +46,7 @@ services:
 
   person-service:
     build:
-      context: ./person
+      context: ./01-person-service
       dockerfile: Dockerfile
     container_name: person-service
     depends_on:
@@ -61,7 +59,7 @@ services:
 
   cron-service:
     build:
-      context: ./cron
+      context: ./02-cron-service
       dockerfile: Dockerfile
     container_name: cron-service
     ports:
