@@ -1,37 +1,9 @@
-server:
-  port: 3000
-
 spring:
   application:
-    name: camunda
+    name: person-service
 
-camunda:
-  client:
-    mode: simple
-    auth:
-      username: demo
-      password: demo
-    zeebe:
-      enabled: true
-      base-url: http://localhost:26500
-    operate:
-      enabled: true
-      base-url: http://localhost:8083
-    tasklist:
-      enabled: true
-      base-url: http://localhost:8082
+  profiles:
+    active: dev
 
-#zeebe:
-#  client:
-#    broker:
-#      gateway-address=: http://localhost:26500
-#    security:
-#      plaintext: true
-#    worker:
-#      max-jobs-active: 100
-#    job:
-#      poll-interval: 100
-#      timeout: 10
-#
 
 

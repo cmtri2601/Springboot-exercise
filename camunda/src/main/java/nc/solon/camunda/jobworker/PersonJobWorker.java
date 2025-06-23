@@ -1,44 +1,38 @@
-package nc.solon.camunda.service;
+package nc.solon.camunda.jobworker;
 
 import io.camunda.zeebe.client.api.response.ActivatedJob;
 import io.camunda.zeebe.client.api.worker.JobClient;
 import io.camunda.zeebe.spring.client.annotation.JobWorker;
-import io.camunda.zeebe.spring.client.annotation.Variable;
-import io.camunda.zeebe.spring.client.exception.ZeebeBpmnError;
-import java.time.Instant;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.camunda.zeebe.spring.client.exception.ZeebeBpmnError;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nc.solon.camunda.service.PersonService;
+import nc.solon.camunda.utils.Log;
+import nc.solon.common.audit.Auditable;
+import nc.solon.common.dto.PersonInDTO;
+import nc.solon.common.dto.PersonOutDTO;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class CamundaService {
+@RequiredArgsConstructor
+public class PersonJobWorker {
 
-    @JobWorker(type = "foo", autoComplete = true) // autoComplete = true as default value
-    public void handleFooJob(final ActivatedJob job) {
-        logJob(job, "hello foo");
-    }
+    private final PersonService personService;
 
-    @JobWorker(type = "bar", autoComplete = true) // autoComplete = true as default value
-    public void handleBarJob(final ActivatedJob job) {
-        logJob(job, "hello bar");
-    }
-
-    @JobWorker(type = "create-person", autoComplete = true) // autoComplete = true as default value
-    public void handleCreatePersonJob(final ActivatedJob job) {
-        logJob(job, "hello bar");
-    }
-
-    private static void logJob(final ActivatedJob job, Object parameterValue) {
-        log.info(
-                "complete job\n>>> [type: {}, key: {}, element: {}, workflow instance: {}]\n{deadline; {}]\n[headers: {}]\n[variable parameter: {}\n[variables: {}]",
-                job.getType(),
-                job.getKey(),
-                job.getElementId(),
-                job.getProcessInstanceKey(),
-                Instant.ofEpochMilli(job.getDeadline()),
-                job.getCustomHeaders(),
-                parameterValue,
-                job.getVariables());
+    @JobWorker(type = "create-person") // autoComplete = true as default value
+    public Map<String, Object> handleCreatePersonJob(final JobClient client, final ActivatedJob job) {
+        Log.jobWorker(job, "create-person");
+        var dto = job.getVariablesAsType(PersonInDTO.class);
+        log.info(dto.toString());
+        PersonOutDTO result = personService.createPerson(dto);
+        var variables = new HashMap<String, Object>();
+        variables.put("id", result.getId());
+        return variables;
     }
 }
