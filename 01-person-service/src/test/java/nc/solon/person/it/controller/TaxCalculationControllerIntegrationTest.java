@@ -1,13 +1,14 @@
 package nc.solon.person.it.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import nc.solon.person.dto.ManualConsumeTaxOutDTO;
-import nc.solon.person.dto.TaxBatchInDTO;
-import nc.solon.person.dto.TaxInDTO;
+import nc.solon.common.dto.ManualConsumeTaxOutDTO;
+import nc.solon.common.dto.TaxBatchInDTO;
+import nc.solon.common.dto.TaxInDTO;
 import nc.solon.person.it.config.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

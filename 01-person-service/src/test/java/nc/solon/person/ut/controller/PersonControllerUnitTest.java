@@ -1,6 +1,5 @@
 package nc.solon.person.ut.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -14,9 +13,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import nc.solon.common.dto.PersonInDTO;
+import nc.solon.common.dto.PersonOutDTO;
 import nc.solon.person.controller.PersonController;
-import nc.solon.person.dto.PersonInDTO;
-import nc.solon.person.dto.PersonOutDTO;
 import nc.solon.person.service.PersonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
