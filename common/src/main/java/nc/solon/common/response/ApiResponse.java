@@ -2,6 +2,9 @@ package nc.solon.common.response;
 
 
 import lombok.Data;
+import nc.solon.common.dto.PersonOutDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.Instant;
 import java.util.List;
@@ -42,4 +45,31 @@ public class ApiResponse<T> {
         return new ApiResponse<>(status, message, errorCode, traceId, subErrors, null);
     }
 
+    public static <T> ApiResponse<T> notFound() {
+        return new ApiResponse<>(404, "Not Found", null, null, null, null);
+    }
+
+    public static <T> ApiResponse<T> notFound(String errorCode) {
+        return new ApiResponse<>(404, "Not Found", errorCode, null, null, null);
+    }
+
+    public static <T> ApiResponse<T> notFound(String errorCode, String traceId) {
+        return new ApiResponse<>(404, "Not Found", errorCode, traceId, null, null);
+    }
+
+    public static <T> ApiResponse<T> accepted() {
+        return new ApiResponse<>(202, "Accepted", null, null, null, null);
+    }
+
+    public static <T> ResponseEntity<ApiResponse<T>> responseSuccess(T data) {
+        return ResponseEntity.ok(success(data));
+    }
+
+    public static <T> ResponseEntity<ApiResponse<T>> responseNotFound() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.notFound());
+    }
+
+    public static <T> ResponseEntity<ApiResponse<T>> responseAccepted() {
+        return ResponseEntity.accepted().body(ApiResponse.accepted());
+    }
 }
