@@ -6,18 +6,13 @@ WORKDIR /build
 # Copy Maven wrapper and config from the monorepo root
 COPY mvnw .
 COPY .mvn .mvn
-COPY pom.xml .
+COPY pom-person.xml pom.xml
 
-# Copy the common module (00-common)
-COPY 00-common/pom.xml 00-common/pom.xml
-COPY 00-common/src     00-common/src
-
-# Copy the person-service module (this module)
-COPY 01-person-service/pom.xml 01-person-service/pom.xml
-COPY 01-person-service/src     01-person-service/src
+COPY 00-common 00-common
+COPY 01-person-service 01-person-service
 
 # Optional: Pre-fetch dependencies to leverage Docker caching
-RUN ./mvnw dependency:go-offline
+# RUN ./mvnw dependency:go-offline -pl 01-person-service -am
 
 # Build person-service and its dependency (00-common)
 RUN ./mvnw clean package -pl 01-person-service -am -DskipTests

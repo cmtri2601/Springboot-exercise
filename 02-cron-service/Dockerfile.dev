@@ -1,0 +1,18 @@
+FROM eclipse-temurin:21-jre-alpine
+
+VOLUME /tmp
+
+# Set the working directory
+WORKDIR /app
+
+#Set profile to build for k8s, can overide by docker-compose
+ENV SPRING_PROFILES_ACTIVE=prod
+
+# Copy the jar from the builder stage
+COPY target/cron-*.jar app.jar
+
+# Expose the port Spring Boot runs on
+EXPOSE 8081
+
+# Run the application
+ENTRYPOINT ["java","-jar","app.jar"]
