@@ -1,7 +1,5 @@
 FROM eclipse-temurin:21-jre-alpine
 
-VOLUME /tmp
-
 # Set the working directory
 WORKDIR /app
 

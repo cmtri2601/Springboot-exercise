@@ -2,7 +2,7 @@ name: docker-compose-dev
 services:
   postgres:
     image: postgres:16
-    container_name: postgres
+    container_name: postgres-root-dev
     restart: always
     environment:
       POSTGRES_DB: postgres
@@ -15,7 +15,7 @@ services:
 
   kafka:
     image: bitnami/kafka:3.9
-    container_name: kafka
+    container_name: kafka-root-dev
     environment:
       KAFKA_CFG_NODE_ID: 1
       KAFKA_CFG_PROCESS_ROLES: broker,controller
@@ -32,7 +32,7 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
+    container_name: kafka-ui-root-dev
     depends_on:
       - kafka
     ports:
@@ -47,7 +47,7 @@ services:
     build:
       context: ./01-person-service
       dockerfile: Dockerfile.dev
-    container_name: person-service
+    container_name: person-service-root-dev
     depends_on:
       - postgres
       - kafka
@@ -60,7 +60,7 @@ services:
     build:
       context: ./02-cron-service
       dockerfile: Dockerfile.dev
-    container_name: cron-service
+    container_name: cron-service-root-dev
     ports:
       - "8081:8081"
     environment:

@@ -1,6 +1,5 @@
 FROM eclipse-temurin:21-jre-alpine
 
-VOLUME /tmp
 
 # Set the working directory
 WORKDIR /app
@@ -12,7 +11,7 @@ ENV SPRING_PROFILES_ACTIVE=prod
 COPY target/person-*.jar app.jar
 
 # Expose the port Spring Boot runs on
-EXPOSE 8081
+EXPOSE 8080
 
 # Run the application
 ENTRYPOINT ["java","-jar","app.jar"]
