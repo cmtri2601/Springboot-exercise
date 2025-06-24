@@ -1,3 +1,4 @@
+version: '3.8'
 name: dev
 services:
 
@@ -203,11 +204,16 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
     depends_on:
-      - kafka
-      - postgres
-      - zeebe
-      - operate
-      - tasklist
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_started
+      zeebe:
+        condition: service_started
+      operate:
+        condition: service_healthy
+      tasklist:
+        condition: service_healthy
 volumes:
   zeebe:
   elastic:

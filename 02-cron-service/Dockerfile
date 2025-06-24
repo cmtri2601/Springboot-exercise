@@ -25,7 +25,7 @@ VOLUME /tmp
 # Set the working directory
 WORKDIR /app
 
-#Set profile to build for k8s, can overide by docker-compose
+#Set profile to build for k8s, can override by docker-compose
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # Copy the jar from the builder stage
