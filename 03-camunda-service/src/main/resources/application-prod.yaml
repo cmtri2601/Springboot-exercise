@@ -63,12 +63,17 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+#logging:
+#  level:
+#    root: ERROR
+#    org.springframework.kafka: ERROR
+#    org.hibernate.SQL: ERROR
+
 logging:
   level:
-    root: ERROR
-    org.springframework.kafka: ERROR
-    org.hibernate.SQL: ERROR
-
+    root: INFO
+    org.springframework.kafka: DEBUG
+    org.hibernate.SQL: DEBUG
 
 camunda:
   client:
@@ -86,5 +91,9 @@ camunda:
       enabled: true
       base-url: http://tasklist:8082
 
-
-
+zeebe:
+  client:
+    broker:
+      gateway-address: zeebe:26500
+    security:
+      plaintext: true
