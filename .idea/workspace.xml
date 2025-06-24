@@ -4,23 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d1555b94-4868-409e-b562-0ee6163f290f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/checkstyle-idea.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/checkstyle-idea.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/google-java-format.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/google-java-format.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/00-common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/00-common/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01-person-service/Dockerfile.dev" beforeDir="false" afterPath="$PROJECT_DIR$/01-person-service/Dockerfile.dev" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/it/controller/PersonControllerIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/it/controller/PersonControllerIntegrationTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/it/controller/TaxCalculationControllerIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/it/controller/TaxCalculationControllerIntegrationTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/it/repository/PersonRepositoryIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/it/repository/PersonRepositoryIntegrationTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/ut/controller/PersonControllerUnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/ut/controller/PersonControllerUnitTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/ut/controller/TaxCalculationControllerUnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/ut/controller/TaxCalculationControllerUnitTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/ut/service/PersonServiceUnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/ut/service/PersonServiceUnitTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/ut/service/TaxServiceUnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/01-person-service/src/test/java/nc/solon/person/ut/service/TaxServiceUnitTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/02-cron-service/Dockerfile.dev" beforeDir="false" afterPath="$PROJECT_DIR$/02-cron-service/Dockerfile.dev" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose-dev.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose-dev.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="d1555b94-4868-409e-b562-0ee6163f290f" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -61,6 +45,7 @@
     "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Spring Boot.CronApplication.executor": "Run",
     "Spring Boot.PersonApplication.executor": "Run",
     "git-widget-placeholder": "main",
@@ -159,7 +144,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1750670903755</updated>
-      <workItem from="1750670908653" duration="5573000" />
+      <workItem from="1750670908653" duration="5778000" />
     </task>
     <servers />
   </component>
