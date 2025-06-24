@@ -2,7 +2,7 @@ name: kafka-dev
 services:
   kafka:
     image: bitnami/kafka:3.9
-    container_name: kafka-dev
+    container_name: kafka-kd
     ports:
       - "9092:9092"
     environment:
@@ -19,7 +19,7 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui-dev
+    container_name: kafka-ui-kd
     ports:
       - "8000:8080"
     environment:
@@ -30,7 +30,7 @@ services:
 
   postgres:
     image: postgres:16
-    container_name: postgres-kafka-dev
+    container_name: postgres-kd
     restart: always
     environment:
       POSTGRES_DB: postgres
