@@ -23,6 +23,7 @@ public class PersonService {
    * Create person sync.
    *
    * @param dto the dto
+   * @return the person out dto
    */
   public PersonOutDTO createPerson(PersonInDTO dto) {
     Person person =
