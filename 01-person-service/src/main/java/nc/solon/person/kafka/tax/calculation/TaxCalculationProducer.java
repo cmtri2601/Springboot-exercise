@@ -3,9 +3,9 @@ package nc.solon.person.kafka.tax.calculation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import nc.solon.common.constant.ErrorMessage;
+import nc.solon.common.constant.Kafka;
 import nc.solon.common.event.TaxCalculationEvent;
 import nc.solon.common.utils.ErrorHandler;
-import nc.solon.person.config.KafkaProperties;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,6 @@ public class TaxCalculationProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
-    private final KafkaProperties kafkaProperties;
 
     /**
      * Send event.
@@ -30,8 +29,7 @@ public class TaxCalculationProducer {
     public void sendEvent(TaxCalculationEvent event) {
         try {
             String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(
-                    kafkaProperties.getTopics().getTaxCalculation().getSingle().getName(), json);
+            kafkaTemplate.send(Kafka.Topics.TAX_CALCULATION_SINGLE, json);
         } catch (Exception e) {
             ErrorHandler.throwRuntimeError(ErrorMessage.FAIL_SERIALIZE_EVENT, e);
         }
@@ -45,8 +43,7 @@ public class TaxCalculationProducer {
     public void sendBatchEvent(List<TaxCalculationEvent> batch) {
         try {
             String json = objectMapper.writeValueAsString(batch);
-            kafkaTemplate.send(
-                    kafkaProperties.getTopics().getTaxCalculation().getBatch().getName(), json);
+            kafkaTemplate.send(Kafka.Topics.TAX_CALCULATION_BATCH, json);
         } catch (Exception e) {
             ErrorHandler.throwRuntimeError(ErrorMessage.FAIL_SERIALIZE_EVENT, e);
         }
@@ -61,8 +58,7 @@ public class TaxCalculationProducer {
         try {
             String key = event.getTaxId();
             String json = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(
-                    kafkaProperties.getTopics().getTaxCalculation().getManual().getName(), key, json);
+            kafkaTemplate.send(Kafka.Topics.TAX_CALCULATION_MANUAL, key, json);
         } catch (Exception e) {
             ErrorHandler.throwRuntimeError(ErrorMessage.FAIL_SERIALIZE_EVENT, e);
         }

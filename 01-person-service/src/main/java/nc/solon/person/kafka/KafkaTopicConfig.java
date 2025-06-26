@@ -1,7 +1,6 @@
 package nc.solon.person.kafka;
 
-import lombok.RequiredArgsConstructor;
-import nc.solon.person.config.KafkaProperties;
+import nc.solon.common.constant.Kafka;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +10,7 @@ import org.springframework.kafka.config.TopicBuilder;
  * The type Kafka topic config.
  */
 @Configuration
-@RequiredArgsConstructor
 public class KafkaTopicConfig {
-
-    private final KafkaProperties kafkaProperties;
-
     /**
      * Person events topic new topic.
      *
@@ -23,8 +18,7 @@ public class KafkaTopicConfig {
      */
     @Bean
     public NewTopic personEventsTopic() {
-        String name = kafkaProperties.getTopics().getPersonEvents().getName();
-        return TopicBuilder.name(name).build();
+        return TopicBuilder.name(Kafka.Topics.PERSON_EVENTS).build();
     }
 
     /**
@@ -34,8 +28,7 @@ public class KafkaTopicConfig {
      */
     @Bean
     public NewTopic taxCalculationTopic() {
-        String name = kafkaProperties.getTopics().getTaxCalculation().getSingle().getName();
-        return TopicBuilder.name(name).build();
+        return TopicBuilder.name(Kafka.Topics.TAX_CALCULATION_SINGLE).build();
     }
 
     /**
@@ -45,8 +38,7 @@ public class KafkaTopicConfig {
      */
     @Bean
     public NewTopic taxCalculationRetryTopic() {
-        String name = kafkaProperties.getTopics().getTaxCalculation().getRetry().getName();
-        return TopicBuilder.name(name).build();
+        return TopicBuilder.name(Kafka.Topics.TAX_CALCULATION_RETRY).build();
     }
 
     /**
@@ -56,8 +48,7 @@ public class KafkaTopicConfig {
      */
     @Bean
     public NewTopic taxCalculationDLTopic() {
-        String name = kafkaProperties.getTopics().getTaxCalculation().getDlt().getName();
-        return TopicBuilder.name(name).build();
+        return TopicBuilder.name(Kafka.Topics.TAX_CALCULATION_DLT).build();
     }
 
     /**
@@ -67,8 +58,7 @@ public class KafkaTopicConfig {
      */
     @Bean
     public NewTopic taxCalculationBatchTopic() {
-        String name = kafkaProperties.getTopics().getTaxCalculation().getBatch().getName();
-        return TopicBuilder.name(name).build();
+        return TopicBuilder.name(Kafka.Topics.TAX_CALCULATION_BATCH).build();
     }
 
     /**
@@ -78,7 +68,9 @@ public class KafkaTopicConfig {
      */
     @Bean
     public NewTopic taxCalculationManualConsumeTopic() {
-        var manual = kafkaProperties.getTopics().getTaxCalculation().getManual();
-        return TopicBuilder.name(manual.getName()).partitions(manual.getPartitions()).build();
+        return TopicBuilder
+                .name(Kafka.Topics.TAX_CALCULATION_MANUAL)
+                .partitions(Kafka.Topics.Config.TAX_CALCULATION_MANUAL_PARTITIONS)
+                .build();
     }
 }

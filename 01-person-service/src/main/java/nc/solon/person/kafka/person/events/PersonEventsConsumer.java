@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import nc.solon.common.audit.Auditable;
 import nc.solon.common.constant.Action;
 import nc.solon.common.constant.ErrorMessage;
+import nc.solon.common.constant.Kafka;
 import nc.solon.common.constant.LogMessage;
 import nc.solon.common.dto.PersonInDTO;
 import nc.solon.common.event.PersonEvent;
@@ -37,9 +38,7 @@ public class PersonEventsConsumer {
      * @param ack     the ack
      */
     @Auditable(action = Action.PERSON_CONSUME)
-    @KafkaListener(
-            topics = "${spring.kafka.topics.person-events.name}",
-            groupId = "${spring.kafka.groups.person-events.name}")
+    @KafkaListener(topics = Kafka.Topics.PERSON_EVENTS, groupId = Kafka.Groups.PERSON_EVENTS)
     public void consume(String message, Acknowledgment ack) {
         try {
             PersonEvent event = objectMapper.readValue(message, PersonEvent.class);

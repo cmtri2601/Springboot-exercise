@@ -1,8 +1,8 @@
 package nc.solon.person.kafka;
 
-import lombok.RequiredArgsConstructor;
-import nc.solon.person.config.KafkaProperties;
+import nc.solon.common.constant.Kafka;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -16,10 +16,10 @@ import java.util.Map;
  * The type Kafka producer config.
  */
 @Configuration
-@RequiredArgsConstructor
 public class KafkaProducerConfig {
 
-    private final KafkaProperties kafkaProperties;
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
 
     /**
      * Producer factory.
@@ -29,13 +29,9 @@ public class KafkaProducerConfig {
     @Bean
     public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> config = new HashMap<>();
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
-        config.put(
-                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                kafkaProperties.getProducer().getKeySerializer());
-        config.put(
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                kafkaProperties.getProducer().getValueSerializer());
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Kafka.Producer.KEY_SERIALIZER);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Kafka.Producer.VALUE_SERIALIZER);
         return new DefaultKafkaProducerFactory<>(config);
     }
 

@@ -1,8 +1,9 @@
 package nc.solon.person.kafka;
 
 import lombok.RequiredArgsConstructor;
-import nc.solon.person.config.KafkaProperties;
+import nc.solon.common.constant.Kafka;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -23,7 +24,9 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 public class KafkaConsumerConfig {
-    private final KafkaProperties kafkaProperties;
+
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String bootstrapServers;
 
     /**
      * Consumer factory.
@@ -33,13 +36,9 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
-        props.put(
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                kafkaProperties.getConsumer().getKeyDeserializer());
-        props.put(
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                kafkaProperties.getConsumer().getValueDeserializer());
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Kafka.Consumer.KEY_DESERIALIZER);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Kafka.Consumer.VALUE_DESERIALIZER);
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
@@ -54,10 +53,13 @@ public class KafkaConsumerConfig {
                 new ConcurrentKafkaListenerContainerFactory<String, String>();
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-        var fixedBackoff = kafkaProperties.getTopics().getPersonEvents().getFixedBackoff();
         DefaultErrorHandler errorHandler =
                 new DefaultErrorHandler(
-                        new FixedBackOff(fixedBackoff.getInterval(), fixedBackoff.getMaxAttempts()));
+                        new FixedBackOff(
+                                Kafka.Topics.Config.PERSON_EVENTS_BACKOFF_INTERVAL_MS,
+                                Kafka.Topics.Config.PERSON_EVENTS_BACKOFF_MAX_ATTEMPTS
+                        )
+                );
         factory.setCommonErrorHandler(errorHandler);
 
         return factory;
