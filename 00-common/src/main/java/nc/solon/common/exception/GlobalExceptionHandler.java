@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(
                 ApiResponse.error(
-                        HttpStatus.BAD_REQUEST.value(),
+                        HttpStatus.UNPROCESSABLE_ENTITY.value(),
                         "Validation Failed",
                         "VALIDATION_ERROR",
                         request.getHeader("traceId"),

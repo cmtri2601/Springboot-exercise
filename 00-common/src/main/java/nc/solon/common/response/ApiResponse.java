@@ -72,4 +72,8 @@ public class ApiResponse<T> {
     public static <T> ResponseEntity<ApiResponse<T>> responseAccepted() {
         return ResponseEntity.accepted().body(ApiResponse.accepted());
     }
+
+    public static <T> ResponseEntity<ApiResponse<T>> responseError(String errorCode) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(500, null, errorCode, null, null ));
+    }
 }

@@ -1,18 +1,17 @@
 package nc.solon.common.event;
 
+
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
-/** The type Tax calculation event. */
-@Getter
-@Setter
-@NoArgsConstructor
+/**
+ * The type Tax calculation event.
+ */
+@Data
 @AllArgsConstructor
 public class TaxCalculationEvent {
-  private String taxId;
-  private BigDecimal amount;
+    private String taxId;
+    private BigDecimal amount;
 }
